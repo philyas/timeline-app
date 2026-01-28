@@ -1,110 +1,118 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { EventService } from '../services/EventService';
 import { EventImageService, getImageUrl } from '../services/EventImageService';
 import { EventImage } from '../types/timeline';
+import type { AuthRequest } from '../middleware/jwtAuth';
 
 const eventService = new EventService();
 const eventImageService = new EventImageService();
 
-export async function getEventsByTimeline(req: Request, res: Response): Promise<void> {
+export async function getEventsByTimeline(req: AuthRequest, res: Response): Promise<void> {
   try {
     const timelineId = parseInt(req.params.timelineId, 10);
     if (isNaN(timelineId)) {
-      res.status(400).json({ error: 'Invalid timeline ID.' });
+      res.status(400).json({ error: 'Ungültige Timeline-ID.' });
       return;
     }
-    const events = await eventService.findByTimelineId(timelineId);
+    const userId = req.userId!;
+    const events = await eventService.findByTimelineId(timelineId, userId);
     res.json(events);
   } catch (error) {
     res.status(500).json({
-      error: error instanceof Error ? error.message : 'Failed to fetch events.',
+      error: error instanceof Error ? error.message : 'Fehler beim Laden der Ereignisse.',
     });
   }
 }
 
-export async function getEventById(req: Request, res: Response): Promise<void> {
+export async function getEventById(req: AuthRequest, res: Response): Promise<void> {
   try {
     const id = parseInt(req.params.id, 10);
     if (isNaN(id)) {
-      res.status(400).json({ error: 'Invalid event ID.' });
+      res.status(400).json({ error: 'Ungültige Ereignis-ID.' });
       return;
     }
-    const event = await eventService.findById(id);
+    const userId = req.userId!;
+    const event = await eventService.findById(id, userId);
     if (!event) {
-      res.status(404).json({ error: 'Event not found.' });
+      res.status(404).json({ error: 'Ereignis nicht gefunden.' });
       return;
     }
     res.json(event);
   } catch (error) {
     res.status(500).json({
-      error: error instanceof Error ? error.message : 'Failed to fetch event.',
+      error: error instanceof Error ? error.message : 'Fehler beim Laden des Ereignisses.',
     });
   }
 }
 
-export async function getImportantEvents(req: Request, res: Response): Promise<void> {
+export async function getImportantEvents(req: AuthRequest, res: Response): Promise<void> {
   try {
     const limit = parseInt(req.query.limit as string, 10) || 20;
-    const events = await eventService.findImportant(limit);
+    const userId = req.userId!;
+    const events = await eventService.findImportant(limit, userId);
     res.json(events);
   } catch (error) {
     res.status(500).json({
-      error: error instanceof Error ? error.message : 'Failed to fetch important events.',
+      error: error instanceof Error ? error.message : 'Fehler beim Laden der wichtigen Ereignisse.',
     });
   }
 }
 
-export async function createEvent(req: Request, res: Response): Promise<void> {
+export async function createEvent(req: AuthRequest, res: Response): Promise<void> {
   try {
-    const event = await eventService.create(req.body);
+    const userId = req.userId!;
+    const event = await eventService.create(req.body, userId);
     res.status(201).json(event);
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to create event.';
+    const message = error instanceof Error ? error.message : 'Ereignis konnte nicht erstellt werden.';
     res.status(400).json({ error: message });
   }
 }
 
-export async function updateEvent(req: Request, res: Response): Promise<void> {
+export async function updateEvent(req: AuthRequest, res: Response): Promise<void> {
   try {
     const id = parseInt(req.params.id, 10);
     if (isNaN(id)) {
-      res.status(400).json({ error: 'Invalid event ID.' });
+      res.status(400).json({ error: 'Ungültige Ereignis-ID.' });
       return;
     }
-    const event = await eventService.update(id, req.body);
+    const userId = req.userId!;
+    const event = await eventService.update(id, req.body, userId);
     res.json(event);
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to update event.';
+    const message = error instanceof Error ? error.message : 'Ereignis konnte nicht aktualisiert werden.';
     const status = message.includes('not found') ? 404 : 400;
     res.status(status).json({ error: message });
   }
 }
 
-export async function deleteEvent(req: Request, res: Response): Promise<void> {
+export async function deleteEvent(req: AuthRequest, res: Response): Promise<void> {
   try {
     const id = parseInt(req.params.id, 10);
     if (isNaN(id)) {
-      res.status(400).json({ error: 'Invalid event ID.' });
+      res.status(400).json({ error: 'Ungültige Ereignis-ID.' });
       return;
     }
-    await eventService.delete(id);
+    const userId = req.userId!;
+    await eventService.delete(id, userId);
     res.status(204).send();
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to delete event.';
+    const message = error instanceof Error ? error.message : 'Ereignis konnte nicht gelöscht werden.';
     res.status(message.includes('not found') ? 404 : 500).json({ error: message });
   }
 }
 
-export async function uploadEventImages(req: Request, res: Response): Promise<void> {
+export async function uploadEventImages(req: AuthRequest, res: Response): Promise<void> {
   try {
     const eventId = parseInt(req.params.id, 10);
     if (isNaN(eventId)) {
-      res.status(400).json({ error: 'Invalid event ID.' });
+      res.status(400).json({ error: 'Ungültige Ereignis-ID.' });
       return;
     }
-    const event = await eventService.findById(eventId);
+    const userId = req.userId!;
+    const event = await eventService.findById(eventId, userId);
     if (!event) {
-      res.status(404).json({ error: 'Event not found.' });
+      res.status(404).json({ error: 'Ereignis nicht gefunden.' });
       return;
     }
     const files = (req as unknown as { files?: { filename: string }[] }).files ?? [];
@@ -136,7 +144,7 @@ export async function uploadEventImages(req: Request, res: Response): Promise<vo
   }
 }
 
-export async function deleteEventImage(req: Request, res: Response): Promise<void> {
+export async function deleteEventImage(req: AuthRequest, res: Response): Promise<void> {
   try {
     const imageId = parseInt(req.params.imageId, 10);
     if (isNaN(imageId)) {
@@ -151,7 +159,7 @@ export async function deleteEventImage(req: Request, res: Response): Promise<voi
   }
 }
 
-export async function setEventMainImage(req: Request, res: Response): Promise<void> {
+export async function setEventMainImage(req: AuthRequest, res: Response): Promise<void> {
   try {
     const imageId = parseInt(req.params.imageId, 10);
     if (isNaN(imageId)) {

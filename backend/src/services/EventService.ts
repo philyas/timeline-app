@@ -45,8 +45,14 @@ async function attachImages(events: Event[]): Promise<void> {
   }
 }
 
+async function ensureTimelineOwnership(timelineId: number, userId: number): Promise<void> {
+  const t = await getKnex()('timelines').where({ id: timelineId, user_id: userId }).first();
+  if (!t) throw new Error('Timeline not found.');
+}
+
 export class EventService {
-  async findByTimelineId(timelineId: number): Promise<Event[]> {
+  async findByTimelineId(timelineId: number, userId: number): Promise<Event[]> {
+    await ensureTimelineOwnership(timelineId, userId);
     const knex = getKnex();
     const rows = await knex('events')
       .leftJoin('timelines', 'events.timeline_id', 'timelines.id')
@@ -64,10 +70,11 @@ export class EventService {
     return events;
   }
 
-  async findById(id: number): Promise<Event | null> {
+  async findById(id: number, userId: number): Promise<Event | null> {
     const row = await getKnex()('events')
       .leftJoin('timelines', 'events.timeline_id', 'timelines.id')
       .where('events.id', id)
+      .where('timelines.user_id', userId)
       .select(
         'events.*',
         'timelines.name as timeline_name',
@@ -80,11 +87,12 @@ export class EventService {
     return event;
   }
 
-  async findImportant(limit: number = 20): Promise<Event[]> {
+  async findImportant(limit: number, userId: number): Promise<Event[]> {
     const knex = getKnex();
     const rows = await knex('events')
       .leftJoin('timelines', 'events.timeline_id', 'timelines.id')
       .where('events.is_important', true)
+      .where('timelines.user_id', userId)
       .orderBy('events.year', 'asc')
       .orderByRaw('COALESCE(events.month, 0) ASC')
       .orderByRaw('COALESCE(events.day, 0) ASC')
@@ -99,9 +107,8 @@ export class EventService {
     return events;
   }
 
-  async create(dto: CreateEventDto): Promise<Event> {
-    const timeline = await getKnex()('timelines').where({ id: dto.timelineId }).first();
-    if (!timeline) throw new Error('Timeline not found.');
+  async create(dto: CreateEventDto, userId: number): Promise<Event> {
+    await ensureTimelineOwnership(dto.timelineId, userId);
     const [row] = await getKnex()('events')
       .insert({
         timeline_id: dto.timelineId,
@@ -118,8 +125,13 @@ export class EventService {
     return event;
   }
 
-  async update(id: number, dto: UpdateEventDto): Promise<Event> {
-    const existing = await getKnex()('events').where({ id }).first();
+  async update(id: number, dto: UpdateEventDto, userId: number): Promise<Event> {
+    const existing = await getKnex()('events')
+      .leftJoin('timelines', 'events.timeline_id', 'timelines.id')
+      .where('events.id', id)
+      .where('timelines.user_id', userId)
+      .select('events.*')
+      .first();
     if (!existing) throw new Error('Event not found.');
     const updatePayload: Record<string, unknown> = {};
     if (dto.title !== undefined) updatePayload.title = dto.title;
@@ -134,8 +146,13 @@ export class EventService {
     return event;
   }
 
-  async delete(id: number): Promise<void> {
-    const existing = await getKnex()('events').where({ id }).first();
+  async delete(id: number, userId: number): Promise<void> {
+    const existing = await getKnex()('events')
+      .leftJoin('timelines', 'events.timeline_id', 'timelines.id')
+      .where('events.id', id)
+      .where('timelines.user_id', userId)
+      .select('events.*')
+      .first();
     if (!existing) throw new Error('Event not found.');
     await imageService.deleteAllForEvent(id);
     await getKnex()('events').where({ id }).del();

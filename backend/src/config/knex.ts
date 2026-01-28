@@ -1,6 +1,6 @@
 import path from 'path';
 import knex, { Knex } from 'knex';
-import { getDbConfig } from './dbConfig';
+import { getDbConfig, getDbConfigSummary } from './dbConfig';
 
 let knexInstance: Knex | null = null;
 
@@ -33,6 +33,7 @@ export function getKnex(): Knex {
 }
 
 export async function connectDatabase(): Promise<void> {
+  console.log(getDbConfigSummary());
   const k = getKnex();
   await k.raw('select 1');
   console.log('Database connection established.');

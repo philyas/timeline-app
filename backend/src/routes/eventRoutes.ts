@@ -11,8 +11,11 @@ import {
   setEventMainImage,
 } from '../controllers/EventController';
 import { uploadEventImage } from '../config/upload';
+import { jwtAuth } from '../middleware/jwtAuth';
 
 const router = Router();
+
+router.use(jwtAuth);
 
 router.get('/important', getImportantEvents);
 router.get('/timeline/:timelineId', getEventsByTimeline);

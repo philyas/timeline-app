@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { AuthService } from './core/services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -14,8 +15,15 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
             <span class="menu-icon"></span>
           </button>
           <nav class="nav" [class.open]="menuOpen">
-            <a routerLink="/timelines" routerLinkActive="active" (click)="closeMenu()">Zeitstrahlen</a>
-            <a routerLink="/important" routerLinkActive="active" (click)="closeMenu()">Wichtige Ereignisse</a>
+            @if (auth.isLoggedIn()) {
+              <a routerLink="/timelines" routerLinkActive="active" (click)="closeMenu()">Zeitstrahlen</a>
+              <a routerLink="/important" routerLinkActive="active" (click)="closeMenu()">Wichtige Ereignisse</a>
+              <a routerLink="/change-password" routerLinkActive="active" (click)="closeMenu()">Passwort ändern</a>
+              <span class="nav-user">{{ auth.user()?.name || auth.user()?.email }}</span>
+              <button type="button" class="nav-btn" (click)="logout(); closeMenu()">Abmelden</button>
+            } @else {
+              <a routerLink="/login" routerLinkActive="active" (click)="closeMenu()">Anmelden</a>
+            }
           </nav>
         </div>
         @if (menuOpen) {
@@ -124,6 +132,9 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
     .nav a:hover, .nav a.active { color: var(--accent); background: var(--accent-soft); }
     .nav a:hover { text-decoration: none; }
     .nav a.active { font-weight: 600; }
+    .nav-user { color: var(--text-secondary); font-size: 0.9375rem; padding: 0.5rem 0.75rem; }
+    .nav-btn { background: none; color: var(--text-secondary); font-size: 0.9375rem; font-weight: 500; cursor: pointer; padding: 0.6rem 1rem; border-radius: var(--radius-sm); transition: color 0.2s, background 0.2s; }
+    .nav-btn:hover { color: var(--accent); background: var(--accent-soft); }
 
     @media (max-width: 599px) {
       .nav.open {
@@ -163,11 +174,17 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 export class AppComponent {
   menuOpen = false;
 
+  constructor(protected auth: AuthService) {}
+
   toggleMenu(): void {
     this.menuOpen = !this.menuOpen;
   }
 
   closeMenu(): void {
     this.menuOpen = false;
+  }
+
+  logout(): void {
+    this.auth.logout();
   }
 }

@@ -7,8 +7,11 @@ import {
   updateTimeline,
   deleteTimeline,
 } from '../controllers/TimelineController';
+import { jwtAuth } from '../middleware/jwtAuth';
 
 const router = Router();
+
+router.use(jwtAuth);
 
 router.get('/', getAllTimelines);
 router.get('/slug/:slug', getTimelineBySlug);

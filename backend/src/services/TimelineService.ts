@@ -24,14 +24,15 @@ export interface UpdateTimelineDto {
 }
 
 export class TimelineService {
-  async findAll(): Promise<Timeline[]> {
+  async findAll(userId: number): Promise<Timeline[]> {
     const rows = await getKnex()('timelines')
+      .where({ user_id: userId })
       .orderBy(['sort_order', 'name']);
     return rows.map(rowToTimeline);
   }
 
-  async findById(id: number): Promise<Timeline | null> {
-    const row = await getKnex()('timelines').where({ id }).first();
+  async findById(id: number, userId: number): Promise<Timeline | null> {
+    const row = await getKnex()('timelines').where({ id, user_id: userId }).first();
     if (!row) return null;
     const timeline = rowToTimeline(row);
     const eventRows = await getKnex()('events')
@@ -58,20 +59,21 @@ export class TimelineService {
     return timeline;
   }
 
-  async findBySlug(slug: string): Promise<Timeline | null> {
-    const row = await getKnex()('timelines').where({ slug }).first();
+  async findBySlug(slug: string, userId: number): Promise<Timeline | null> {
+    const row = await getKnex()('timelines').where({ slug, user_id: userId }).first();
     if (!row) return null;
-    return this.findById(row.id as number);
+    return this.findById(row.id as number, userId);
   }
 
-  async create(dto: CreateTimelineDto): Promise<Timeline> {
+  async create(dto: CreateTimelineDto, userId: number): Promise<Timeline> {
     const slug = dto.slug ?? this.slugify(dto.name);
-    const existing = await getKnex()('timelines').where({ slug }).first();
+    const existing = await getKnex()('timelines').where({ slug, user_id: userId }).first();
     if (existing) {
-      throw new Error(`Timeline with slug "${slug}" already exists.`);
+      throw new Error(`Timeline mit Slug „${slug}" existiert bereits.`);
     }
     const [row] = await getKnex()('timelines')
       .insert({
+        user_id: userId,
         name: dto.name,
         slug,
         description: dto.description ?? null,
@@ -83,12 +85,12 @@ export class TimelineService {
     return rowToTimeline(row);
   }
 
-  async update(id: number, dto: UpdateTimelineDto): Promise<Timeline> {
-    const existing = await getKnex()('timelines').where({ id }).first();
+  async update(id: number, dto: UpdateTimelineDto, userId: number): Promise<Timeline> {
+    const existing = await getKnex()('timelines').where({ id, user_id: userId }).first();
     if (!existing) throw new Error('Timeline not found.');
     if (dto.slug != null) {
-      const other = await getKnex()('timelines').where({ slug: dto.slug }).whereNot('id', id).first();
-      if (other) throw new Error(`Slug "${dto.slug}" already in use.`);
+      const other = await getKnex()('timelines').where({ slug: dto.slug, user_id: userId }).whereNot('id', id).first();
+      if (other) throw new Error(`Slug „${dto.slug}" wird bereits verwendet.`);
     }
     const updatePayload: Record<string, unknown> = {};
     if (dto.name !== undefined) updatePayload.name = dto.name;
@@ -97,14 +99,14 @@ export class TimelineService {
     if (dto.type !== undefined) updatePayload.type = dto.type;
     if (dto.color !== undefined) updatePayload.color = dto.color;
     if (dto.sortOrder !== undefined) updatePayload.sort_order = dto.sortOrder;
-    const [row] = await getKnex()('timelines').where({ id }).update(updatePayload).returning('*');
+    const [row] = await getKnex()('timelines').where({ id, user_id: userId }).update(updatePayload).returning('*');
     return rowToTimeline(row);
   }
 
-  async delete(id: number): Promise<void> {
-    const existing = await getKnex()('timelines').where({ id }).first();
+  async delete(id: number, userId: number): Promise<void> {
+    const existing = await getKnex()('timelines').where({ id, user_id: userId }).first();
     if (!existing) throw new Error('Timeline not found.');
-    await getKnex()('timelines').where({ id }).del();
+    await getKnex()('timelines').where({ id, user_id: userId }).del();
   }
 
   private slugify(name: string): string {

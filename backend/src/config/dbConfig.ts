@@ -51,3 +51,20 @@ export function getDbConfig(): DbConfig {
   }
   return cfg;
 }
+
+/** Kurze, loggbare Beschreibung der genutzten DB (ohne Passwort). */
+export function getDbConfigSummary(): string {
+  const prod = useProdDb();
+  const mode = prod ? 'PROD' : 'lokal';
+  const url = prod ? (process.env.PROD_DB_URL ?? '').trim() : '';
+  if (prod && url) {
+    const masked = url.replace(/:([^:@]+)@/, ':****@');
+    return `DB [${mode}] Connection-URL: ${masked}`;
+  }
+  const prefix = prod ? 'PROD_DB_' : 'DB_';
+  const host = process.env[`${prefix}HOST`] ?? (prod ? '?' : 'localhost');
+  const port = process.env[`${prefix}PORT`] ?? '5432';
+  const db = process.env[`${prefix}NAME`] ?? (prod ? '?' : 'timeline_app');
+  const user = process.env[`${prefix}USER`] ?? (prod ? '?' : 'timeline_user');
+  return `DB [${mode}] ${host}:${port} / ${db} (User: ${user})`;
+}
