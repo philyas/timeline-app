@@ -1,6 +1,7 @@
 import { getKnex } from '../config/knex';
-import { Event } from '../types/timeline';
+import { Event, EventImage } from '../types/timeline';
 import { rowToEvent } from '../types/timeline';
+import { EventImageService, getImageUrl } from './EventImageService';
 
 export interface CreateEventDto {
   timelineId: number;
@@ -21,6 +22,29 @@ export interface UpdateEventDto {
   isImportant?: boolean;
 }
 
+const imageService = new EventImageService();
+
+function toEventImage(r: { id: number; eventId: number; filename: string; isMain: boolean; sortOrder: number; createdAt?: Date }): EventImage {
+  return {
+    id: r.id,
+    eventId: r.eventId,
+    filename: r.filename,
+    isMain: r.isMain,
+    sortOrder: r.sortOrder,
+    url: getImageUrl(r.filename, r.eventId),
+    createdAt: r.createdAt,
+  };
+}
+
+async function attachImages(events: Event[]): Promise<void> {
+  const ids = events.map((e) => e.id);
+  const map = await imageService.findByEventIds(ids);
+  for (const e of events) {
+    const list = map.get(e.id) ?? [];
+    e.images = list.map(toEventImage);
+  }
+}
+
 export class EventService {
   async findByTimelineId(timelineId: number): Promise<Event[]> {
     const knex = getKnex();
@@ -35,7 +59,9 @@ export class EventService {
         'timelines.name as timeline_name',
         'timelines.slug as timeline_slug'
       );
-    return rows.map(rowToEvent);
+    const events = rows.map(rowToEvent);
+    await attachImages(events);
+    return events;
   }
 
   async findById(id: number): Promise<Event | null> {
@@ -49,7 +75,9 @@ export class EventService {
       )
       .first();
     if (!row) return null;
-    return rowToEvent(row);
+    const event = rowToEvent(row);
+    await attachImages([event]);
+    return event;
   }
 
   async findImportant(limit: number = 20): Promise<Event[]> {
@@ -66,7 +94,9 @@ export class EventService {
         'timelines.name as timeline_name',
         'timelines.slug as timeline_slug'
       );
-    return rows.map(rowToEvent);
+    const events = rows.map(rowToEvent);
+    await attachImages(events);
+    return events;
   }
 
   async create(dto: CreateEventDto): Promise<Event> {
@@ -83,7 +113,9 @@ export class EventService {
         is_important: dto.isImportant ?? false,
       })
       .returning('*');
-    return rowToEvent(row);
+    const event = rowToEvent(row);
+    await attachImages([event]);
+    return event;
   }
 
   async update(id: number, dto: UpdateEventDto): Promise<Event> {
@@ -97,12 +129,15 @@ export class EventService {
     if (dto.day !== undefined) updatePayload.day = dto.day;
     if (dto.isImportant !== undefined) updatePayload.is_important = dto.isImportant;
     const [row] = await getKnex()('events').where({ id }).update(updatePayload).returning('*');
-    return rowToEvent(row);
+    const event = rowToEvent(row);
+    await attachImages([event]);
+    return event;
   }
 
   async delete(id: number): Promise<void> {
     const existing = await getKnex()('events').where({ id }).first();
     if (!existing) throw new Error('Event not found.');
+    await imageService.deleteAllForEvent(id);
     await getKnex()('events').where({ id }).del();
   }
 }

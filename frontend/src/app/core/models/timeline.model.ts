@@ -13,6 +13,16 @@ export interface Timeline {
   events?: Event[];
 }
 
+export interface EventImage {
+  id: number;
+  eventId: number;
+  filename: string;
+  isMain: boolean;
+  sortOrder: number;
+  url: string;
+  createdAt?: string;
+}
+
 export interface Event {
   id: number;
   timelineId: number;
@@ -22,6 +32,7 @@ export interface Event {
   month: number | null;
   day: number | null;
   isImportant: boolean;
+  images?: EventImage[];
   createdAt?: string;
   updatedAt?: string;
   timeline?: Timeline;

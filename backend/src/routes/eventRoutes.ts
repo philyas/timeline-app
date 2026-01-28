@@ -6,12 +6,19 @@ import {
   createEvent,
   updateEvent,
   deleteEvent,
+  uploadEventImages,
+  deleteEventImage,
+  setEventMainImage,
 } from '../controllers/EventController';
+import { uploadEventImage } from '../config/upload';
 
 const router = Router();
 
 router.get('/important', getImportantEvents);
 router.get('/timeline/:timelineId', getEventsByTimeline);
+router.post('/:id/images', uploadEventImage.array('images', 10), uploadEventImages);
+router.delete('/:id/images/:imageId', deleteEventImage);
+router.patch('/:id/images/:imageId/main', setEventMainImage);
 router.get('/:id', getEventById);
 router.post('/', createEvent);
 router.put('/:id', updateEvent);

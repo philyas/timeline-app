@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Timeline, Event, CreateTimelineDto, CreateEventDto } from '../models/timeline.model';
+import { Timeline, Event, EventImage, CreateTimelineDto, CreateEventDto } from '../models/timeline.model';
 
 const API = '/api';
 
@@ -57,5 +57,19 @@ export class ApiService {
 
   deleteEvent(id: number): Observable<void> {
     return this.http.delete<void>(`${API}/events/${id}`);
+  }
+
+  uploadEventImages(eventId: number, files: File[]): Observable<EventImage[]> {
+    const fd = new FormData();
+    files.forEach((f) => fd.append('images', f));
+    return this.http.post<EventImage[]>(`${API}/events/${eventId}/images`, fd);
+  }
+
+  deleteEventImage(eventId: number, imageId: number): Observable<void> {
+    return this.http.delete<void>(`${API}/events/${eventId}/images/${imageId}`);
+  }
+
+  setEventMainImage(eventId: number, imageId: number): Observable<void> {
+    return this.http.patch<void>(`${API}/events/${eventId}/images/${imageId}/main`, {});
   }
 }

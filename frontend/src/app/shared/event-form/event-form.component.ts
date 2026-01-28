@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../core/services/api.service';
@@ -41,6 +41,22 @@ function pad(n: number): string {
         Als wichtiges Ereignis markieren
       </label>
 
+      <div class="images-optional">
+        <label class="label">Bilder (optional) – erstes = Hauptbild</label>
+        <input
+          type="file"
+          name="images"
+          #fileInput
+          accept=".jpg,.jpeg,.png,.gif,.webp"
+          multiple
+          (change)="onFilesSelected($event)"
+          class="file-input"
+        />
+        @if (selectedFiles.length) {
+          <p class="file-hint">{{ selectedFiles.length }} Bild(er) ausgewählt</p>
+        }
+      </div>
+
       <div class="actions">
         <button type="submit" [disabled]="!f.valid || saving">{{ saving ? 'Wird hinzugefügt…' : 'Hinzufügen' }}</button>
       </div>
@@ -68,6 +84,10 @@ function pad(n: number): string {
       min-width: 160px;
       box-sizing: border-box;
     }
+    .images-optional { margin-bottom: 1rem; }
+    .images-optional .label { margin-bottom: 0.25rem; }
+    .file-input { display: block; margin-bottom: 0.35rem; font-size: 0.9375rem; }
+    .file-hint { margin: 0; font-size: 0.8125rem; color: var(--text-muted); }
     .actions { margin-top: 1rem; }
   `],
 })
@@ -82,8 +102,16 @@ export class EventFormComponent {
   description = '';
   isImportant = false;
   saving = false;
+  selectedFiles: File[] = [];
+  @ViewChild('fileInput') fileInputRef?: ElementRef<HTMLInputElement>;
 
   constructor(private api: ApiService) {}
+
+  onFilesSelected(e: Event): void {
+    const el = e.target as HTMLInputElement;
+    const list = el?.files;
+    this.selectedFiles = list ? Array.from(list) : [];
+  }
 
   get dateInputValue(): string {
     const m = this.month ?? 1;
@@ -114,6 +142,7 @@ export class EventFormComponent {
   onSubmit(): void {
     if (this.year === null || !this.title.trim() || this.saving) return;
     this.saving = true;
+    const files = [...this.selectedFiles];
     this.api
       .createEvent({
         timelineId: this.timelineId,
@@ -125,15 +154,32 @@ export class EventFormComponent {
         isImportant: this.isImportant,
       })
       .subscribe({
-        next: () => {
+        next: (event) => {
           this.title = '';
           this.year = null;
           this.month = null;
           this.day = null;
           this.description = '';
           this.isImportant = false;
-          this.saving = false;
-          this.created.emit();
+          this.selectedFiles = [];
+          const input = this.fileInputRef?.nativeElement;
+          if (input) input.value = '';
+          if (files.length) {
+            this.api.uploadEventImages(event.id, files).subscribe({
+              next: () => {
+                this.saving = false;
+                this.created.emit();
+              },
+              error: (err) => {
+                this.saving = false;
+                console.error(err?.error?.error || 'Bilder konnten nicht hochgeladen werden.');
+                this.created.emit();
+              },
+            });
+          } else {
+            this.saving = false;
+            this.created.emit();
+          }
         },
         error: (err) => {
           this.saving = false;

@@ -1,6 +1,9 @@
 import { getKnex } from '../config/knex';
-import { Timeline } from '../types/timeline';
+import { Timeline, Event, EventImage } from '../types/timeline';
 import { rowToTimeline, rowToEvent } from '../types/timeline';
+import { EventImageService, getImageUrl } from './EventImageService';
+
+const imageService = new EventImageService();
 
 export interface CreateTimelineDto {
   name: string;
@@ -31,10 +34,27 @@ export class TimelineService {
     const row = await getKnex()('timelines').where({ id }).first();
     if (!row) return null;
     const timeline = rowToTimeline(row);
-    const events = await getKnex()('events')
+    const eventRows = await getKnex()('events')
       .where({ timeline_id: id })
-      .orderBy('year', 'asc');
-    timeline.events = events.map((e: Record<string, unknown>) => rowToEvent(e));
+      .orderBy('year', 'asc')
+      .orderByRaw('COALESCE(month, 0) ASC')
+      .orderByRaw('COALESCE(day, 0) ASC');
+    const events = eventRows.map((e: Record<string, unknown>) => rowToEvent(e)) as Event[];
+    const ids = events.map((e) => e.id);
+    const map = await imageService.findByEventIds(ids);
+    for (const e of events) {
+      const list = map.get(e.id) ?? [];
+      e.images = list.map((r) => ({
+        id: r.id,
+        eventId: r.eventId,
+        filename: r.filename,
+        isMain: r.isMain,
+        sortOrder: r.sortOrder,
+        url: getImageUrl(r.filename, r.eventId),
+        createdAt: r.createdAt,
+      } as EventImage));
+    }
+    timeline.events = events;
     return timeline;
   }
 

@@ -2,14 +2,15 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ApiService } from '../../../core/services/api.service';
-import { Timeline, Event } from '../../../core/models/timeline.model';
+import { Timeline, Event, EventImage } from '../../../core/models/timeline.model';
 import { EventFormComponent } from '../../../shared/event-form/event-form.component';
+import { EventPhotosComponent } from '../../../shared/event-photos/event-photos.component';
 import { ModalComponent } from '../../../shared/modal/modal.component';
 
 @Component({
   selector: 'app-timeline-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, EventFormComponent, ModalComponent],
+  imports: [CommonModule, RouterLink, EventFormComponent, EventPhotosComponent, ModalComponent],
   template: `
     <div class="container">
       <a routerLink="/timelines" class="back">← Zeitstrahlen</a>
@@ -46,14 +47,22 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
                 }
               </div>
               <div class="event-content">
-                <h3>{{ ev.title }}</h3>
-                @if (ev.description) {
-                  <p>{{ ev.description }}</p>
-                }
+                <div class="event-main">
+                  <div class="event-text">
+                    <h3>{{ ev.title }}</h3>
+                    @if (ev.description) {
+                      <p>{{ ev.description }}</p>
+                    }
+                  </div>
+                  @if (getMainImage(ev); as img) {
+                    <img [src]="img.url" [alt]="ev.title" class="event-thumb" loading="lazy" />
+                  }
+                </div>
                 <div class="actions-inline">
                   <button type="button" class="btn-small" [class.btn-important]="ev.isImportant" (click)="toggleImportant(ev)">
                     {{ ev.isImportant ? '★ Wichtig' : '☆ Als wichtig markieren' }}
                   </button>
+                  <button type="button" class="btn-small btn-secondary" (click)="openPhotosModal(ev)">Fotos</button>
                   <button type="button" class="btn-small btn-secondary" (click)="deleteEvent(ev)">Löschen</button>
                 </div>
               </div>
@@ -75,6 +84,15 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
         <app-event-form
           [timelineId]="timeline.id"
           (created)="onEventCreatedAndClose()"
+        />
+      </app-modal>
+    }
+
+    @if (photosModalEvent) {
+      <app-modal [isOpen]="true" [title]="'Fotos: ' + photosModalEvent.title" (closed)="closePhotosModal()">
+        <app-event-photos
+          [event]="photosModalEvent"
+          (updated)="onPhotosUpdated()"
         />
       </app-modal>
     }
@@ -203,6 +221,20 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
       color: var(--important-hover);
       box-shadow: none;
     }
+    .event-main {
+      display: flex;
+      gap: var(--space-md);
+      align-items: flex-start;
+    }
+    .event-text { flex: 1; min-width: 0; }
+    .event-thumb {
+      width: 100%;
+      max-width: 120px;
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      border-radius: var(--radius-sm);
+      flex-shrink: 0;
+    }
   `],
 })
 export class TimelineDetailComponent implements OnInit {
@@ -211,6 +243,7 @@ export class TimelineDetailComponent implements OnInit {
   loading = true;
   error: string | null = null;
   modalOpen = false;
+  photosModalEvent: Event | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -253,6 +286,12 @@ export class TimelineDetailComponent implements OnInit {
       return `${monthStr}${era}`;
     }
     return (ev.year < 0 ? Math.abs(ev.year) + ' v. Chr.' : ev.year + ' n. Chr.');
+  }
+
+  getMainImage(ev: Event): EventImage | null {
+    const imgs = ev.images ?? [];
+    const main = imgs.find((i) => i.isMain);
+    return main ?? imgs[0] ?? null;
   }
 
   /** Position im Jahr 0–100 % (nur wenn Monat gesetzt), sonst null */
@@ -305,6 +344,26 @@ export class TimelineDetailComponent implements OnInit {
     this.api.deleteTimeline(this.timeline.id).subscribe({
       next: () => this.router.navigate(['/timelines']),
       error: (e) => console.error(e?.error?.error ?? 'Zeitlinie konnte nicht gelöscht werden.'),
+    });
+  }
+
+  openPhotosModal(ev: Event): void {
+    this.photosModalEvent = ev;
+  }
+
+  closePhotosModal(): void {
+    this.photosModalEvent = null;
+  }
+
+  onPhotosUpdated(): void {
+    if (!this.timeline || !this.photosModalEvent) return;
+    const id = this.photosModalEvent.id;
+    this.api.getEventById(id).subscribe({
+      next: (ev) => {
+        this.photosModalEvent = ev;
+        const idx = this.events.findIndex((e) => e.id === id);
+        if (idx >= 0) this.events[idx] = ev;
+      },
     });
   }
 }
