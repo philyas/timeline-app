@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { AuthService } from './core/services/auth.service';
 
 @Component({
@@ -30,7 +31,7 @@ import { AuthService } from './core/services/auth.service';
           <div class="nav-overlay" (click)="closeMenu()" role="button" tabindex="0" aria-label="Menü schließen"></div>
         }
       </header>
-      <main class="main">
+      <main class="main" [class.main--auth]="isAuthPage">
         <router-outlet></router-outlet>
       </main>
     </div>
@@ -169,12 +170,25 @@ import { AuthService } from './core/services/auth.service';
     @media (min-width: 600px) {
       .main { padding: var(--space-2xl) 0; }
     }
+    .main--auth { padding: var(--space-sm) 0; }
+    @media (min-width: 600px) {
+      .main--auth { padding: var(--space-md) 0; }
+    }
   `],
 })
 export class AppComponent {
   menuOpen = false;
+  isAuthPage = false;
 
-  constructor(protected auth: AuthService) {}
+  constructor(
+    protected auth: AuthService,
+    private router: Router,
+  ) {
+    this.router.events.pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd)).subscribe(() => {
+      this.isAuthPage = /^\/(login|register|forgot-password|reset-password|verify-email)/.test(this.router.url);
+    });
+    this.isAuthPage = /^\/(login|register|forgot-password|reset-password|verify-email)/.test(this.router.url);
+  }
 
   toggleMenu(): void {
     this.menuOpen = !this.menuOpen;

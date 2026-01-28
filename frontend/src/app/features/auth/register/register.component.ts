@@ -49,15 +49,19 @@ import { AuthService } from '../../../core/services/auth.service';
     </div>
   `,
   styles: [`
-    .auth-card { max-width: 420px; margin-left: auto; margin-right: auto; }
-    .auth-card .page-intro { margin-bottom: var(--space-md); padding-bottom: var(--space-sm); }
-    .auth-card .error { margin-bottom: var(--space-sm); }
-    .auth-card .success { margin-bottom: var(--space-sm); color: var(--accent); font-weight: 500; }
-    .auth-card form { display: flex; flex-direction: column; gap: var(--space-sm); }
-    .actions { display: flex; flex-direction: column; gap: var(--space-sm); margin-top: var(--space-sm); }
+    .container { padding-top: var(--space-sm); padding-bottom: var(--space-sm); min-height: 0; display: flex; flex-direction: column; justify-content: center; }
+    .auth-card { max-width: 420px; margin-left: auto; margin-right: auto; padding: var(--space-md); }
+    .auth-card .page-intro { margin-bottom: var(--space-sm); padding-bottom: var(--space-xs); }
+    .auth-card .page-intro .subtitle { font-size: 0.9375rem; line-height: 1.5; }
+    .auth-card .error { margin-bottom: var(--space-xs); }
+    .auth-card .success { margin-bottom: var(--space-xs); color: var(--accent); font-weight: 500; }
+    .auth-card form { display: flex; flex-direction: column; gap: var(--space-xs); }
+    .auth-card form .label { margin-bottom: 0.25rem; }
+    .actions { display: flex; flex-direction: column; gap: var(--space-xs); margin-top: var(--space-xs); }
     .actions button, .actions a.btn { width: 100%; text-align: center; }
-    .auth-footer { margin-top: var(--space-lg); padding-top: var(--space-md); border-top: 1px solid var(--border-light); text-align: center; color: var(--text-secondary); font-size: 0.9375rem; }
+    .auth-footer { margin-top: var(--space-md); padding-top: var(--space-sm); border-top: 1px solid var(--border-light); text-align: center; color: var(--text-secondary); font-size: 0.9375rem; }
     .auth-footer a { font-weight: 500; }
+    .auth-card .muted { margin-bottom: 0; }
   `],
 })
 export class RegisterComponent {
