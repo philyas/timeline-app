@@ -23,6 +23,12 @@ export async function getEmailTransporter(): Promise<Transporter> {
       port: smtp.port,
       secure: smtp.secure,
       auth: { user: smtp.user, pass: smtp.pass },
+      // Port 587: STARTTLS nutzen (Strato)
+      requireTLS: !smtp.secure && smtp.port === 587,
+      tls: { rejectUnauthorized: true },
+      connectionTimeout: 60000,
+      greetingTimeout: 30000,
+      socketTimeout: 60000,
     });
     return transporter;
   }
