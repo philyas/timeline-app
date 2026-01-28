@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -9,7 +9,35 @@ import { AuthService } from '../../../core/services/auth.service';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   template: `
-    <div class="container">
+    @if (modalMode) {
+      <div class="change-password-modal">
+        @if (error) { <p class="error">{{ error }}</p> }
+        @if (success) {
+          <p class="success">{{ success }}</p>
+          <button type="button" class="btn btn-block" (click)="closed.emit()">Schließen</button>
+        } @else {
+          <form (ngSubmit)="onSubmit()">
+            <div class="cp-row">
+              <label class="cp-label">Aktuell</label>
+              <input type="password" name="current" [(ngModel)]="currentPassword" required placeholder="••••••••" />
+            </div>
+            <div class="cp-row">
+              <label class="cp-label">Neu</label>
+              <input type="password" name="password" [(ngModel)]="newPassword" required placeholder="••••••••" minlength="8" />
+            </div>
+            <div class="cp-row">
+              <label class="cp-label">Bestätigen</label>
+              <input type="password" name="confirm" [(ngModel)]="confirm" required placeholder="••••••••" minlength="8" />
+            </div>
+            <div class="cp-actions">
+              <button type="button" class="btn btn-secondary" (click)="closed.emit()">Abbrechen</button>
+              <button type="submit" [disabled]="saving">{{ saving ? '…' : 'Ändern' }}</button>
+            </div>
+          </form>
+        }
+      </div>
+    } @else {
+      <div class="container">
       <div class="auth-card card">
         <header class="page-intro">
           <h1>Passwort ändern</h1>
@@ -43,9 +71,19 @@ import { AuthService } from '../../../core/services/auth.service';
           <a routerLink="/timelines">← Zurück zu Zeitstrahlen</a>
         </p>
       </div>
-    </div>
+      </div>
+    }
   `,
   styles: [`
+    .change-password-modal { padding: 0; }
+    .change-password-modal .error { margin: 0 0 0.2rem; font-size: 0.7rem; }
+    .change-password-modal .success { margin: 0 0 0.2rem; font-size: 0.7rem; color: var(--accent); font-weight: 500; }
+    .change-password-modal .cp-row { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.2rem; }
+    .change-password-modal .cp-label { flex: 0 0 56px; font-size: 0.7rem; color: var(--text-secondary); }
+    .change-password-modal input { flex: 1; padding: 0.2rem 0.35rem; font-size: 0.8125rem; min-height: 26px; border-radius: 6px; }
+    .change-password-modal .cp-actions { display: flex; gap: 0.3rem; margin-top: 0.3rem; }
+    .change-password-modal .cp-actions .btn, .change-password-modal .cp-actions button { flex: 1; padding: 0.2rem 0.35rem; font-size: 0.75rem; min-height: 26px; }
+    .change-password-modal .btn-block { width: 100%; margin-top: 0.2rem; padding: 0.2rem; font-size: 0.75rem; min-height: 26px; }
     .auth-card { max-width: 420px; margin-left: auto; margin-right: auto; }
     .auth-card .page-intro { margin-bottom: var(--space-md); padding-bottom: var(--space-sm); }
     .auth-card .error { margin-bottom: var(--space-sm); }
@@ -58,6 +96,9 @@ import { AuthService } from '../../../core/services/auth.service';
   `],
 })
 export class ChangePasswordComponent {
+  @Input() modalMode = false;
+  @Output() closed = new EventEmitter<void>();
+
   currentPassword = '';
   newPassword = '';
   confirm = '';

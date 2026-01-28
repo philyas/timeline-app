@@ -9,11 +9,13 @@ import { CommonModule } from '@angular/common';
     @if (isOpen) {
       <div
         class="modal-overlay"
+        [class.modal-overlay--compact]="compact"
         (click)="onOverlayClick($event)"
         role="presentation"
       >
         <div
           class="modal-dialog"
+          [class.modal-dialog--compact]="compact"
           role="dialog"
           [attr.aria-modal]="true"
           [attr.aria-labelledby]="titleId"
@@ -50,6 +52,14 @@ import { CommonModule } from '@angular/common';
       padding-right: calc(var(--space-sm) + env(safe-area-inset-right));
       padding-bottom: calc(var(--space-sm) + env(safe-area-inset-bottom));
       background: rgba(0, 0, 0, 0.4);
+    }
+    .modal-overlay--compact {
+      padding: 0.35rem;
+      padding-left: calc(0.35rem + env(safe-area-inset-left));
+      padding-right: calc(0.35rem + env(safe-area-inset-right));
+      padding-bottom: calc(0.35rem + env(safe-area-inset-bottom));
+    }
+    .modal-overlay:not(.modal-overlay--compact) {
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
     }
@@ -66,11 +76,42 @@ import { CommonModule } from '@angular/common';
       border: 1px solid var(--border-light);
       margin: auto;
     }
+    .modal-dialog--compact {
+      max-height: min(200px, 62dvh);
+      max-width: 320px;
+      margin: auto;
+    }
+    .modal-dialog--compact .modal-header {
+      padding: 0.2rem 0.35rem 0 0.35rem;
+      min-height: 0;
+    }
+    .modal-dialog--compact .modal-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+    .modal-dialog--compact .modal-close {
+      width: 28px;
+      height: 28px;
+    }
+    .modal-dialog--compact .modal-close-icon {
+      font-size: 1.2rem;
+    }
+    .modal-dialog--compact .modal-body {
+      padding: 0.15rem 0.35rem 0.35rem;
+      overflow: visible;
+    }
     @media (min-width: 600px) {
       .modal-dialog {
         max-width: 520px;
         max-height: calc(100vh - 2 * var(--space-lg));
         max-height: calc(100dvh - 2 * var(--space-lg));
+      }
+      .modal-dialog--compact {
+        max-height: min(220px, 62dvh);
+        max-width: 340px;
+      }
+      .modal-dialog--compact .modal-body {
+        padding: 0.25rem 0.4rem 0.4rem;
       }
     }
     .modal-header {
@@ -126,6 +167,7 @@ import { CommonModule } from '@angular/common';
 export class ModalComponent implements OnChanges, OnDestroy {
   @Input() isOpen = false;
   @Input() title = '';
+  @Input() compact = false;
   @Input() closeOnOverlayClick = true;
   @Output() closed = new EventEmitter<void>();
 
