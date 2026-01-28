@@ -12,7 +12,7 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:4200';
+const CORS_ORIGIN = (process.env.CORS_ORIGIN || 'http://localhost:4200').replace(/\/$/, '');
 const UPLOADS = path.join(process.cwd(), 'uploads');
 
 if (!fs.existsSync(UPLOADS)) {
