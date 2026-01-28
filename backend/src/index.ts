@@ -13,10 +13,14 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 const CORS_ORIGIN = (process.env.CORS_ORIGIN || 'http://localhost:4200').replace(/\/$/, '');
-const UPLOADS = path.join(process.cwd(), 'uploads');
+const UPLOADS = process.env.STORAGE_DIR || path.join(process.cwd(), 'uploads');
+const EVENTS_DIR = path.join(UPLOADS, 'events');
 
 if (!fs.existsSync(UPLOADS)) {
   fs.mkdirSync(UPLOADS, { recursive: true });
+}
+if (!fs.existsSync(EVENTS_DIR)) {
+  fs.mkdirSync(EVENTS_DIR, { recursive: true });
 }
 
 app.use(cors({ origin: CORS_ORIGIN }));

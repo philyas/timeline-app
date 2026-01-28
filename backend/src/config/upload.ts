@@ -3,7 +3,8 @@ import path from 'path';
 import fs from 'fs';
 import { randomUUID } from 'crypto';
 
-const UPLOAD_DIR = path.join(process.cwd(), 'uploads', 'events');
+const BASE_UPLOAD_DIR = process.env.STORAGE_DIR || path.join(process.cwd(), 'uploads');
+const UPLOAD_DIR = path.join(BASE_UPLOAD_DIR, 'events');
 const MAX_SIZE = 6 * 1024 * 1024; // 6MB
 const ALLOWED = /\.(jpe?g|png|gif|webp)$/i;
 
@@ -46,7 +47,7 @@ export const uploadEventImage = multer({
 });
 
 export function getUploadsBasePath(): string {
-  return path.join(process.cwd(), 'uploads');
+  return process.env.STORAGE_DIR || path.join(process.cwd(), 'uploads');
 }
 
 export function getEventImagePath(eventId: number, filename: string): string {

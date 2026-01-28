@@ -23,6 +23,9 @@ COPY --from=builder /app/migrations ./migrations
 ENV NODE_ENV=production
 ENV PORT=3000
 
+# Mount-Point für Render Disk (STORAGE_DIR=/var/data)
+RUN mkdir -p /var/data
+
 EXPOSE 3000
 
 CMD ["node", "dist/index.js"]
