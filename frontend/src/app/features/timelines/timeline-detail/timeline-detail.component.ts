@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ApiService } from '../../../core/services/api.service';
 import { Timeline, Event } from '../../../core/models/timeline.model';
 import { EventFormComponent } from '../../../shared/event-form/event-form.component';
@@ -20,8 +20,15 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
         <p class="error">{{ error }}</p>
       } @else if (timeline) {
         <header class="timeline-header" [style.--timeline-color]="timeline.color || '#0d6b5c'">
-          <span class="dot"></span>
-          <h1>{{ timeline.name }}</h1>
+          <div class="header-top">
+            <div class="header-title">
+              <span class="dot"></span>
+              <h1>{{ timeline.name }}</h1>
+            </div>
+            <button type="button" class="btn-small btn-secondary btn-delete-timeline" (click)="deleteTimeline()">
+              Zeitlinie löschen
+            </button>
+          </div>
           @if (timeline.description) {
             <p class="desc">{{ timeline.description }}</p>
           }
@@ -91,16 +98,29 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
       padding-bottom: var(--space-md);
       border-bottom: 1px solid var(--border-light);
     }
-    .dot {
-      display: inline-block;
+    .header-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-sm);
+    }
+    .header-title {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      min-width: 0;
+    }
+    .header-title .dot {
+      flex-shrink: 0;
       width: 12px;
       height: 12px;
       border-radius: 50%;
-      margin-right: 0.6rem;
-      vertical-align: middle;
       background: var(--timeline-color);
     }
-    .desc { color: var(--text-secondary); margin-top: 0.35rem; font-size: 0.9375rem; line-height: 1.5; }
+    .header-title h1 { margin: 0; }
+    .btn-delete-timeline { flex-shrink: 0; }
+    .desc { color: var(--text-secondary); margin: 0.35rem 0 0 0; font-size: 0.9375rem; line-height: 1.5; }
     .timeline-visual {
       margin-bottom: var(--space-xl);
       border-left: 3px solid var(--timeline-color);
@@ -194,6 +214,7 @@ export class TimelineDetailComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private api: ApiService,
   ) {}
 
@@ -275,6 +296,15 @@ export class TimelineDetailComponent implements OnInit {
     this.api.deleteEvent(ev.id).subscribe({
       next: () => this.onEventCreated(),
       error: (e) => console.error(e),
+    });
+  }
+
+  deleteTimeline(): void {
+    if (!this.timeline) return;
+    if (!confirm(`Zeitlinie „${this.timeline.name}" inkl. aller Ereignisse wirklich löschen?`)) return;
+    this.api.deleteTimeline(this.timeline.id).subscribe({
+      next: () => this.router.navigate(['/timelines']),
+      error: (e) => console.error(e?.error?.error ?? 'Zeitlinie konnte nicht gelöscht werden.'),
     });
   }
 }
