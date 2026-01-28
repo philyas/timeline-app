@@ -14,8 +14,8 @@ export async function sendVerificationEmail(email: string, token: string, name?:
     text: `Hallo ${displayName},\n\nbitte bestätige deine E-Mail-Adresse, indem du auf den folgenden Link klickst:\n\n${link}\n\nDer Link ist 24 Stunden gültig.\n\nViele Grüße,\nDein Timeline-Team`,
     html: `
       <p>Hallo ${displayName},</p>
-      <p>bitte bestätige deine E-Mail-Adresse, indem du auf den folgenden Link klickst:</p>
-      <p><a href="${link}">${link}</a></p>
+      <p>bitte bestätige deine E-Mail-Adresse:</p>
+      <p><a href="${link}">E-Mail-Adresse bestätigen</a></p>
       <p>Der Link ist 24 Stunden gültig.</p>
       <p>Viele Grüße,<br>Dein Timeline-Team</p>
     `,
@@ -40,8 +40,8 @@ export async function sendPasswordResetEmail(email: string, token: string, name?
     text: `Hallo ${displayName},\n\ndu hast angefordert, dein Passwort zurückzusetzen. Klicke auf den folgenden Link:\n\n${link}\n\nDer Link ist 1 Stunde gültig. Falls du die Anfrage nicht gestellt hast, ignoriere diese E-Mail.\n\nViele Grüße,\nDein Timeline-Team`,
     html: `
       <p>Hallo ${displayName},</p>
-      <p>du hast angefordert, dein Passwort zurückzusetzen. Klicke auf den folgenden Link:</p>
-      <p><a href="${link}">${link}</a></p>
+      <p>du hast angefordert, dein Passwort zurückzusetzen:</p>
+      <p><a href="${link}">Passwort zurücksetzen</a></p>
       <p>Der Link ist 1 Stunde gültig. Falls du die Anfrage nicht gestellt hast, ignoriere diese E-Mail.</p>
       <p>Viele Grüße,<br>Dein Timeline-Team</p>
     `,

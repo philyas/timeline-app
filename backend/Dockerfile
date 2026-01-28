@@ -19,6 +19,8 @@ RUN npm install --omit=dev
 
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/migrations ./migrations
+COPY knexfile.js ./
+COPY scripts ./scripts
 
 ENV NODE_ENV=production
 ENV PORT=3000

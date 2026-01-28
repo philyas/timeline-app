@@ -57,6 +57,53 @@ Nach dem Deploy werden Bilder automatisch unter:
 
 Der Disk ist persistent - Bilder bleiben auch nach Neustarts erhalten!
 
+## Alle User in Production löschen
+
+1. Render Dashboard → dein **Web Service** → **Shell** (oder "Run Command" / One-off Job).
+2. Im Container:
+
+   ```bash
+   cd /app
+   CONFIRM_DELETE_ALL_USERS=yes node scripts/delete-all-users.js
+   ```
+
+   Oder mit npm (falls `package.json` Scripts ausführbar sind):
+
+   ```bash
+   cd /app
+   CONFIRM_DELETE_ALL_USERS=yes npm run db:delete-users
+   ```
+
+3. In Production ist die Bestätigung **Pflicht**: `CONFIRM_DELETE_ALL_USERS=yes`, sonst bricht das Script ab.
+
+Es werden alle User sowie zugehörige Tokens, Timelines, Events und Event-Images gelöscht. Die Bilddateien auf dem Disk (`/var/data/events/`) bleiben erhalten und können bei Bedarf manuell gelöscht werden.
+
+---
+
+## E-Mails in Production (550 B-URL / SpAM blockiert)
+
+Fehler wie **550 5.7.1 Refused by local policy. Sending of SPAM is not permitted! (B-URL)** entstehen oft, wenn:
+
+- Ein normaler SMTP-Anbieter (z. B. GMX, Web.de, Office) genutzt wird – die lehnen Links in Mails oft ab.
+- **APP_URL** auf `http://` steht oder eine unbekannte Domain ist.
+- Die **From-Adresse** nicht zur SMTP-Domain passt.
+
+**Empfehlung für Production:** Einen **Transactional-E-Mail-Dienst** nutzen:
+
+| Anbieter   | SMTP_HOST           | Port | Hinweis                    |
+|-----------|----------------------|------|----------------------------|
+| **Resend** | smtp.resend.com      | 465  | API-Key als SMTP_PASSWORD |
+| **SendGrid** | smtp.sendgrid.net  | 587  | API-Key als SMTP_PASSWORD |
+| **Mailgun** | smtp.mailgun.org    | 587  | Domain verifizieren        |
+
+**Wichtig:**
+
+1. **APP_URL** in Production auf deine echte Frontend-URL setzen (mit **https**), z. B. `https://deine-app.vercel.app`.
+2. **SMTP_FROM_EMAIL** muss eine Adresse auf deiner verifizierten Domain sein (z. B. `noreply@deinedomain.com`).
+3. Beim Anbieter Domain verifizieren und ggf. SPF/DKIM einrichten (wird oft in der Doku erklärt).
+
+---
+
 ## Troubleshooting
 
 - **Bilder werden nicht gespeichert**: Prüfe, ob `STORAGE_DIR` gesetzt ist und der Mount Path korrekt ist
