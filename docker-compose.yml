@@ -1,0 +1,56 @@
+services:
+  db:
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    container_name: timeline-db
+    environment:
+      POSTGRES_DB: timeline_app
+      POSTGRES_USER: timeline_user
+      POSTGRES_PASSWORD: timeline_password
+    volumes:
+      - timeline_db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U timeline_user -d timeline_app"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: timeline-backend
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: timeline_app
+      DB_USER: timeline_user
+      DB_PASSWORD: timeline_password
+      SEED_ON_START: "true"
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    profiles:
+      - full
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: timeline-frontend
+    depends_on:
+      - backend
+    ports:
+      - "4200:80"
+    profiles:
+      - full
+
+volumes:
+  timeline_db_data:
