@@ -12,7 +12,8 @@
     "start:prod": "node dist/index.js",
     "migrate": "knex migrate:latest",
     "migrate:rollback": "knex migrate:rollback",
-    "migrate:status": "knex migrate:status"
+    "migrate:status": "knex migrate:status",
+    "db:check": "node scripts/check-db-connection.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
