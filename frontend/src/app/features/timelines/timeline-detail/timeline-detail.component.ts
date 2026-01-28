@@ -44,7 +44,7 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
                   <p>{{ ev.description }}</p>
                 }
                 <div class="actions-inline">
-                  <button type="button" class="btn-small" (click)="toggleImportant(ev)">
+                  <button type="button" class="btn-small" [class.btn-important]="ev.isImportant" (click)="toggleImportant(ev)">
                     {{ ev.isImportant ? '★ Wichtig' : '☆ Als wichtig markieren' }}
                   </button>
                   <button type="button" class="btn-small btn-secondary" (click)="deleteEvent(ev)">Löschen</button>
@@ -169,6 +169,19 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
       min-height: 36px;
       padding: 0.45rem 0.85rem;
       -webkit-tap-highlight-color: transparent;
+    }
+    .btn-small.btn-important {
+      background: var(--important-soft);
+      color: var(--important);
+      border: 1px solid rgba(180, 83, 9, 0.35);
+      font-weight: 600;
+      box-shadow: none;
+    }
+    .btn-small.btn-important:hover {
+      background: rgba(180, 83, 9, 0.18);
+      border-color: var(--important);
+      color: var(--important-hover);
+      box-shadow: none;
     }
   `],
 })
