@@ -53,18 +53,23 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
           <a routerLink="/timelines" class="empty-cta">Zu den Zeitstrahlen</a>
         </div>
       } @else {
-        <!-- Horizontal Timeline -->
-        <div class="timeline-container"
-             #timelineContainer
-             (mousedown)="onDragStart($event)"
-             (touchstart)="onTouchStart($event)"
-             [class.dragging]="isDragging">
+        <!-- Timeline section: fixe Jahres-Anzeige + scrollbarer Track (wie Timeline-Detail) -->
+        <div class="timeline-section">
+          <div class="center-year-bar" aria-hidden="true">
+            <span class="center-year-label">{{ centerYearLabel }}</span>
+          </div>
+          <div class="timeline-container"
+               #timelineContainer
+               (scroll)="onTimelineScroll()"
+               (mousedown)="onDragStart($event)"
+               (touchstart)="onTouchStart($event)"
+               [class.dragging]="isDragging">
           
           <div class="timeline-track" #timelineTrack [style.width.px]="trackWidth">
             <!-- The axis line -->
             <div class="axis-line"></div>
             
-            <!-- Year markers -->
+            <!-- Year markers – nur Jahre mit Events -->
             @for (year of yearMarkers; track year) {
               <div class="year-marker" [style.left.px]="getYearPosition(year)">
                 <span class="year-label">{{ formatYearLabel(year) }}</span>
@@ -77,7 +82,7 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
               <div class="event-node" 
                    [class.above]="i % 2 === 0"
                    [class.below]="i % 2 !== 0"
-                   [style.left.px]="getEventPosition(ev)"
+                   [style.left.px]="eventPositions[ev.id]"
                    (click)="selectEvent(ev)">
                 <div class="event-dot"></div>
                 <div class="event-connector"></div>
@@ -118,6 +123,7 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
               </div>
             }
           </div>
+        </div>
         </div>
 
         <!-- Scroll hint -->
@@ -312,12 +318,69 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
       transform: scale(1.02);
     }
 
+    /* Timeline section: fixe Jahres-Anzeige + scrollbarer Track (wie Timeline-Detail) */
+    .timeline-section {
+      flex: 1;
+      min-height: 0;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Fixe Jahres-Anzeige – Glas, groß, clean, weich über dem Zahlenstrahl */
+    .center-year-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 88px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 30;
+      pointer-events: none;
+      background: linear-gradient(180deg,
+        rgba(255, 255, 255, 0.45) 0%,
+        rgba(255, 255, 255, 0.25) 50%,
+        rgba(255, 255, 255, 0.08) 85%,
+        transparent 100%
+      );
+      backdrop-filter: blur(20px) saturate(1.2);
+      -webkit-backdrop-filter: blur(20px) saturate(1.2);
+    }
+    .center-year-label {
+      font-size: 2rem;
+      font-weight: 600;
+      letter-spacing: -0.04em;
+      color: var(--important);
+      padding: 0.5rem 1.5rem;
+      background: rgba(255, 255, 255, 0.35);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      box-shadow:
+        0 4px 24px rgba(0, 0, 0, 0.04),
+        0 0 0 1px rgba(0, 0, 0, 0.03),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      transition: color 0.2s ease, box-shadow 0.2s ease;
+    }
+    @media (max-width: 599px) {
+      .center-year-bar { height: 72px; }
+      .center-year-label {
+        font-size: 1.5rem;
+        padding: 0.4rem 1.15rem;
+        border-radius: 14px;
+      }
+    }
+
     /* Timeline Container */
     .timeline-container {
       flex: 1;
+      min-height: 0;
       position: relative;
       overflow-x: auto;
-      overflow-y: hidden;
+      overflow-y: visible;
       cursor: grab;
       -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
@@ -628,6 +691,7 @@ export class ImportantEventsComponent implements OnInit, AfterViewInit, OnDestro
   photosModalEvent: Event | null = null;
   selectedEvent: Event | null = null;
   showScrollHint = true;
+  centerYearEvent: Event | null = null;
 
   // Drag scrolling state
   isDragging = false;
@@ -638,8 +702,8 @@ export class ImportantEventsComponent implements OnInit, AfterViewInit, OnDestro
   private lastTime = 0;
   private momentumId: number | null = null;
 
-  // Timeline calculation
-  private readonly eventSpacing = 280;
+  // Timeline calculation – wie Timeline-Detail
+  private readonly minEventGap = 200;
   private readonly padding = 150;
 
   get sortedEvents(): Event[] {
@@ -656,31 +720,29 @@ export class ImportantEventsComponent implements OnInit, AfterViewInit, OnDestro
     });
   }
 
+  get eventPositions(): Record<number, number> {
+    const out: Record<number, number> = {};
+    if (this.events.length === 0) return out;
+    const sorted = this.sortedEvents;
+    for (let i = 0; i < sorted.length; i++) {
+      out[sorted[i].id] = this.padding + i * this.minEventGap;
+    }
+    return out;
+  }
+
   get trackWidth(): number {
     if (this.events.length === 0) return 0;
-    return this.padding * 2 + (this.events.length) * this.eventSpacing;
+    return this.padding + this.events.length * this.minEventGap + this.padding;
   }
 
   get yearMarkers(): number[] {
     if (this.events.length === 0) return [];
-    const sorted = this.sortedEvents;
-    const years = sorted.map(e => e.year);
-    const minYear = Math.min(...years);
-    const maxYear = Math.max(...years);
-    
-    const range = maxYear - minYear;
-    let step = 1;
-    if (range > 100) step = 50;
-    else if (range > 50) step = 25;
-    else if (range > 20) step = 10;
-    else if (range > 10) step = 5;
-    
-    const markers: number[] = [];
-    const start = Math.floor(minYear / step) * step;
-    for (let y = start; y <= maxYear + step; y += step) {
-      markers.push(y);
-    }
-    return markers;
+    const yearsSet = new Set(this.events.map(e => e.year));
+    return Array.from(yearsSet).sort((a, b) => a - b);
+  }
+
+  get centerYearLabel(): string {
+    return this.centerYearEvent ? this.formatYear(this.centerYearEvent) : '';
   }
 
   constructor(private api: ApiService) {}
@@ -719,10 +781,35 @@ export class ImportantEventsComponent implements OnInit, AfterViewInit, OnDestro
   private centerTimeline(): void {
     if (!this.containerRef?.nativeElement) return;
     const container = this.containerRef.nativeElement;
-    const centerPos = this.events.length > 0 
-      ? this.padding + (this.events.length - 1) * this.eventSpacing / 2
+    const centerPos = this.events.length > 0
+      ? (this.trackWidth - this.padding - 100) / 2
       : 0;
     container.scrollLeft = Math.max(0, centerPos - container.clientWidth / 2);
+    this.updateCenterYearEvent();
+  }
+
+  onTimelineScroll(): void {
+    this.updateCenterYearEvent();
+  }
+
+  private updateCenterYearEvent(): void {
+    if (!this.containerRef?.nativeElement || this.events.length === 0) return;
+    const container = this.containerRef.nativeElement;
+    if (container.clientWidth <= 0) return;
+    const centerX = container.scrollLeft + container.clientWidth / 2;
+    const positions = this.eventPositions;
+    let closest: Event | null = null;
+    let best = Infinity;
+    for (const ev of this.sortedEvents) {
+      const x = positions[ev.id];
+      if (x == null) continue;
+      const d = Math.abs(x - centerX);
+      if (d < best) {
+        best = d;
+        closest = ev;
+      }
+    }
+    this.centerYearEvent = closest;
   }
 
   // Drag scrolling methods
@@ -770,6 +857,7 @@ export class ImportantEventsComponent implements OnInit, AfterViewInit, OnDestro
     }
     this.lastX = e.pageX;
     this.lastTime = now;
+    this.updateCenterYearEvent();
   }
 
   @HostListener('window:touchmove', ['$event'])
@@ -787,6 +875,7 @@ export class ImportantEventsComponent implements OnInit, AfterViewInit, OnDestro
     }
     this.lastX = touch.pageX;
     this.lastTime = now;
+    this.updateCenterYearEvent();
   }
 
   @HostListener('window:mouseup')
@@ -812,25 +901,15 @@ export class ImportantEventsComponent implements OnInit, AfterViewInit, OnDestro
     this.momentumId = requestAnimationFrame(animate);
   }
 
-  // Event positioning
-  getEventPosition(ev: Event): number {
-    const sorted = this.sortedEvents;
-    const index = sorted.findIndex(e => e.id === ev.id);
-    return this.padding + index * this.eventSpacing;
-  }
-
   getYearPosition(year: number): number {
     if (this.events.length === 0) return this.padding;
-    const sorted = this.sortedEvents;
-    const years = sorted.map(e => e.year);
-    const minYear = Math.min(...years);
-    const maxYear = Math.max(...years);
-    
-    if (minYear === maxYear) return this.padding;
-    
-    const totalWidth = (this.events.length - 1) * this.eventSpacing;
-    const ratio = (year - minYear) / (maxYear - minYear);
-    return this.padding + ratio * totalWidth;
+    const eventsOfYear = this.sortedEvents.filter(e => e.year === year);
+    if (eventsOfYear.length === 0) return this.padding;
+    const positions = this.eventPositions;
+    const yearPositions = eventsOfYear.map(e => positions[e.id]).filter((p): p is number => p != null);
+    if (yearPositions.length === 0) return this.padding;
+    const sum = yearPositions.reduce((a, b) => a + b, 0);
+    return sum / yearPositions.length;
   }
 
   formatYearLabel(year: number): string {

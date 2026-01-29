@@ -774,7 +774,7 @@ export class TimelineDetailComponent implements OnInit, AfterViewInit, OnDestroy
     if (this.events.length === 0) return this.padding;
     const positions = this.eventPositions;
     const maxX = Object.values(positions).length ? Math.max(...Object.values(positions)) : this.padding;
-    return maxX + 80;
+    return maxX + 160;
   }
 
   get centerYearLabel(): string {
