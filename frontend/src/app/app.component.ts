@@ -10,7 +10,7 @@ import { AppHeaderComponent } from './shared/header/app-header.component';
   template: `
     <div class="app">
       <app-header />
-      <main class="main" [class.main--auth]="isAuthPage" [class.main--timeline-detail]="isTimelineDetailPage">
+      <main class="main" [class.main--auth]="isAuthPage" [class.main--timeline-detail]="isTimelineDetailPage" [class.main--important-events]="isImportantEventsPage">
         <router-outlet></router-outlet>
       </main>
     </div>
@@ -29,7 +29,8 @@ import { AppHeaderComponent } from './shared/header/app-header.component';
       .main--auth { padding: var(--space-md) 0; }
     }
     @media (max-width: 599px) {
-      .main--timeline-detail {
+      .main--timeline-detail,
+      .main--important-events {
         flex: 1;
         min-height: 0;
         overflow: hidden;
@@ -44,15 +45,18 @@ import { AppHeaderComponent } from './shared/header/app-header.component';
 export class AppComponent {
   isAuthPage = false;
   isTimelineDetailPage = false;
+  isImportantEventsPage = false;
 
   constructor(private router: Router) {
     this.router.events.pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd)).subscribe(() => {
       const u = this.router.url;
       this.isAuthPage = /^\/(login|register|forgot-password|reset-password|verify-email)/.test(u);
       this.isTimelineDetailPage = /^\/timelines\/[^/]+/.test(u);
+      this.isImportantEventsPage = /^\/important\/?$/.test(u);
     });
     const u = this.router.url;
     this.isAuthPage = /^\/(login|register|forgot-password|reset-password|verify-email)/.test(u);
     this.isTimelineDetailPage = /^\/timelines\/[^/]+/.test(u);
+    this.isImportantEventsPage = /^\/important\/?$/.test(u);
   }
 }

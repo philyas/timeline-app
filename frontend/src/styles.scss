@@ -30,6 +30,7 @@
   --space-2xl: 3.5rem;
   --container-padding: 1.25rem;
   --header-height: 60px;
+  --app-header-offset: 0px;
 }
 
 @media (min-width: 600px) {
@@ -39,22 +40,32 @@
   }
 }
 
+/* Abstand für Fullscreen-Modal unter dem Nav-Header (mobil) */
+@media (max-width: 599px) {
+  :root {
+    --app-header-offset: calc(48px + env(safe-area-inset-top));
+  }
+}
+
 @media (min-width: 960px) {
   :root {
     --container-padding: 2rem;
   }
 }
 
-/* Timeline-Detail: scrollbarer Container auf Mobil */
+/* Timeline-Detail & Wichtige Ereignisse: scrollbarer Container auf Mobil */
 @media (max-width: 599px) {
-  .main--timeline-detail {
+  .main--timeline-detail,
+  .main--important-events {
     display: flex;
     flex-direction: column;
   }
-  .main--timeline-detail router-outlet {
+  .main--timeline-detail router-outlet,
+  .main--important-events router-outlet {
     display: contents;
   }
-  .main--timeline-detail app-timeline-detail {
+  .main--timeline-detail app-timeline-detail,
+  .main--important-events app-important-events {
     flex: 1;
     min-height: 0;
     display: flex;

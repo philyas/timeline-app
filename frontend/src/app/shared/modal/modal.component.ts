@@ -10,12 +10,14 @@ import { CommonModule } from '@angular/common';
       <div
         class="modal-overlay"
         [class.modal-overlay--compact]="compact"
+        [class.modal-overlay--fullscreen-mobile]="fullscreenOnMobile"
         (click)="onOverlayClick($event)"
         role="presentation"
       >
         <div
           class="modal-dialog"
           [class.modal-dialog--compact]="compact"
+          [class.modal-dialog--fullscreen-mobile]="fullscreenOnMobile"
           role="dialog"
           [attr.aria-modal]="true"
           [attr.aria-labelledby]="titleId"
@@ -162,12 +164,42 @@ import { CommonModule } from '@angular/common';
     @media (min-width: 600px) {
       .modal-body { padding: var(--space-lg); }
     }
+    /* Fullscreen unter Nav-Header (mobil): Header bleibt sichtbar */
+    @media (max-width: 599px) {
+      .modal-overlay--fullscreen-mobile {
+        top: var(--app-header-offset, calc(48px + env(safe-area-inset-top)));
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 0;
+        align-items: stretch;
+      }
+      .modal-overlay--fullscreen-mobile .modal-dialog--fullscreen-mobile {
+        max-width: none;
+        width: 100%;
+        height: 100%;
+        max-height: none;
+        border-radius: 0;
+        border: none;
+        border-left: none;
+        border-right: none;
+        border-bottom: none;
+      }
+      .modal-dialog--fullscreen-mobile .modal-header {
+        padding-left: var(--container-padding);
+        padding-right: var(--container-padding);
+      }
+      .modal-dialog--fullscreen-mobile .modal-body {
+        padding-bottom: calc(var(--space-md) + env(safe-area-inset-bottom));
+      }
+    }
   `],
 })
 export class ModalComponent implements OnChanges, OnDestroy {
   @Input() isOpen = false;
   @Input() title = '';
   @Input() compact = false;
+  @Input() fullscreenOnMobile = false;
   @Input() closeOnOverlayClick = true;
   @Output() closed = new EventEmitter<void>();
 
