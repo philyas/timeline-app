@@ -163,6 +163,8 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
       z-index: 1;
     }
     .event-row:last-child { border-bottom: none; }
+    .event-row.important { z-index: 2; }
+    .event-row.important .year-badge { z-index: 3; }
     .year-badge {
       position: absolute;
       left: calc(-1 * var(--space-md) - 3px);
@@ -193,11 +195,11 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
       background: color-mix(in srgb, var(--bg) 55%, black);
     }
     .event-row.important .year-badge {
-      color: var(--accent);
-      background: var(--important-soft);
+      color: var(--important);
+      background: color-mix(in srgb, var(--important) 11%, var(--bg-card));
     }
     .event-row.important .year-badge::after {
-      background: color-mix(in srgb, var(--important) 65%, black);
+      background: color-mix(in srgb, var(--important) 55%, black);
     }
     .event-body { }
     .event-content h3 { margin: 0; font-size: 1.125rem; font-weight: 600; letter-spacing: -0.02em; }
@@ -209,7 +211,7 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
       margin-top: 0.15rem;
       margin-bottom: 0.25rem;
     }
-    .event-row.important .date-detail { color: var(--accent); }
+    .event-row.important .date-detail { color: var(--important); }
     .event-content p { margin: 0.25rem 0 0.5rem 0; font-size: 0.9375rem; color: var(--text-secondary); line-height: 1.5; }
     .actions-inline {
       display: flex;
@@ -226,12 +228,12 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
     .btn-small.btn-important {
       background: var(--important-soft);
       color: var(--important);
-      border: 1px solid rgba(180, 83, 9, 0.35);
+      border: 1px solid rgba(91, 95, 199, 0.3);
       font-weight: 600;
       box-shadow: none;
     }
     .btn-small.btn-important:hover {
-      background: rgba(180, 83, 9, 0.18);
+      background: color-mix(in srgb, var(--important) 18%, var(--bg-card));
       border-color: var(--important);
       color: var(--important-hover);
       box-shadow: none;

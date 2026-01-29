@@ -46,7 +46,7 @@ import { Event } from '../../../core/models/timeline.model';
     .event-list { display: flex; flex-direction: column; gap: var(--space-md); }
     .event-card {
       max-width: 640px;
-      border-left: 3px solid var(--accent);
+      border-left: 3px solid var(--important);
       transition: box-shadow 0.2s;
     }
     .event-card:hover { box-shadow: var(--shadow-hover); }
@@ -57,7 +57,7 @@ import { Event } from '../../../core/models/timeline.model';
       gap: 0.5rem 0.75rem;
       margin-bottom: 0.5rem;
     }
-    .year { font-size: 0.8125rem; font-weight: 600; color: var(--accent); letter-spacing: 0.02em; }
+    .year { font-size: 0.8125rem; font-weight: 600; color: var(--important); letter-spacing: 0.02em; }
     .timeline-link {
       font-size: 0.8125rem;
       font-weight: 500;
