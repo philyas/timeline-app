@@ -71,4 +71,12 @@ export class ApiService {
   setEventMainImage(eventId: number, imageId: number): Observable<void> {
     return this.http.patch<void>(`${environment.apiUrl}/events/${eventId}/images/${imageId}/main`, {});
   }
+
+  /** Bild-URL absolut machen, damit Bilder in Prod (anderer Origin) laden. */
+  getImageUrl(url: string): string {
+    if (!url) return url;
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    const base = environment.apiUrl.replace(/\/api\/?$/, '');
+    return base + (url.startsWith('/') ? url : '/' + url);
+  }
 }

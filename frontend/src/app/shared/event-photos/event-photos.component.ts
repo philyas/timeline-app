@@ -28,7 +28,7 @@ import type { Event as AppEvent, EventImage } from '../../core/models/timeline.m
       <div class="gallery">
         @for (img of images; track img.id) {
         <div class="gallery-item">
-          <img [src]="img.url" [alt]="event?.title ?? ''" loading="lazy" class="thumb" />
+          <img [src]="imageSrc(img.url)" [alt]="event?.title ?? ''" loading="lazy" class="thumb" />
           <div class="thumb-actions">
             @if (!img.isMain) {
               <button type="button" class="btn-small" (click)="setMain(img)">Als Hauptbild</button>
@@ -93,6 +93,10 @@ export class EventPhotosComponent {
   }
 
   constructor(private api: ApiService) {}
+
+  imageSrc(url: string): string {
+    return this.api.getImageUrl(url);
+  }
 
   onFilesSelected(e: Event): void {
     const el = (e.target as HTMLInputElement | null) ?? undefined;

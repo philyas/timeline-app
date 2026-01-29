@@ -55,7 +55,7 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
                     }
                   </div>
                   @if (getMainImage(ev); as img) {
-                    <img [src]="img.url" [alt]="ev.title" class="event-thumb" loading="lazy" />
+                    <img [src]="imageSrc(img.url)" [alt]="ev.title" class="event-thumb" loading="lazy" />
                   }
                 </div>
                 <div class="actions-inline">
@@ -292,6 +292,10 @@ export class TimelineDetailComponent implements OnInit {
     const imgs = ev.images ?? [];
     const main = imgs.find((i) => i.isMain);
     return main ?? imgs[0] ?? null;
+  }
+
+  imageSrc(url: string): string {
+    return this.api.getImageUrl(url);
   }
 
   /** Position im Jahr 0–100 % (nur wenn Monat gesetzt), sonst null */
