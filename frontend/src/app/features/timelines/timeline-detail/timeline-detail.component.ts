@@ -35,8 +35,22 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
           }
         </header>
 
+        @if (events.length) {
+          <div class="sort-bar">
+            <span class="sort-label">Reihenfolge:</span>
+            <div class="sort-toggle" role="group" aria-label="Sortierung">
+              <button type="button" class="sort-btn" [class.active]="sortOrder === 'asc'" (click)="setSortOrder('asc')">
+                Älteste zuerst
+              </button>
+              <button type="button" class="sort-btn" [class.active]="sortOrder === 'desc'" (click)="setSortOrder('desc')">
+                Neueste zuerst
+              </button>
+            </div>
+          </div>
+        }
+
         <div class="timeline-visual" [style.--timeline-color]="timeline.color || '#0d6b5c'">
-          @for (ev of events; track ev.id) {
+          @for (ev of sortedEvents; track ev.id) {
             <div class="event-row" [class.important]="ev.isImportant">
               <span class="year-badge">{{ formatYear(ev) }}</span>
               <div class="event-body">
@@ -137,6 +151,37 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
     .header-title h1 { margin: 0; }
     .btn-delete-timeline { flex-shrink: 0; }
     .desc { color: var(--text-secondary); margin: 0.35rem 0 0 0; font-size: 0.9375rem; line-height: 1.5; }
+    .sort-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem var(--space-sm);
+      margin-bottom: var(--space-md);
+    }
+    .sort-label { font-size: 0.8125rem; font-weight: 500; color: var(--text-secondary); }
+    .sort-toggle {
+      display: inline-flex;
+      background: var(--border-light);
+      border-radius: var(--radius-sm);
+      padding: 2px;
+    }
+    .sort-btn {
+      font-size: 0.8125rem;
+      font-weight: 500;
+      padding: 0.35rem 0.75rem;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text-secondary);
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.2s, color 0.2s;
+    }
+    .sort-btn:hover { color: var(--text); background: var(--border); }
+    .sort-btn.active {
+      background: var(--bg-card);
+      color: var(--accent);
+      box-shadow: var(--shadow);
+    }
     .timeline-visual {
       margin-bottom: var(--space-xl);
       margin-left: 2.5rem;
@@ -257,10 +302,30 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
 export class TimelineDetailComponent implements OnInit {
   timeline: Timeline | null = null;
   events: Event[] = [];
+  sortOrder: 'asc' | 'desc' = 'asc';
   loading = true;
   error: string | null = null;
   modalOpen = false;
   photosModalEvent: Event | null = null;
+
+  get sortedEvents(): Event[] {
+    const dir = this.sortOrder === 'asc' ? 1 : -1;
+    return [...this.events].sort((a, b) => {
+      const y = Math.sign(a.year - b.year);
+      if (y !== 0) return dir * y;
+      const ma = a.month ?? 0;
+      const mb = b.month ?? 0;
+      const m = Math.sign(ma - mb);
+      if (m !== 0) return dir * m;
+      const da = a.day ?? 0;
+      const db = b.day ?? 0;
+      return dir * Math.sign(da - db);
+    });
+  }
+
+  setSortOrder(order: 'asc' | 'desc'): void {
+    this.sortOrder = order;
+  }
 
   constructor(
     private route: ActivatedRoute,
