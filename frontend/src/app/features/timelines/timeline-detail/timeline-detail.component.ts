@@ -54,6 +54,9 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
                 </div>
               </div>
             }
+            @if (imagesUploadingBanner) {
+              <p class="images-uploading-hint">Bilder werden noch hochgeladen.</p>
+            }
           }
         </div>
       </div>
@@ -112,6 +115,7 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
         <app-event-form
           [timelineId]="timeline.id"
           (created)="onEventCreatedAndClose()"
+          (imagesUploading)="showImagesUploadingBanner()"
         />
       </app-modal>
     }
@@ -289,6 +293,11 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
       color: var(--accent);
       box-shadow: var(--shadow);
     }
+    .images-uploading-hint {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      margin: 0 0 var(--space-md) 0;
+    }
     .timeline-visual {
       margin-bottom: var(--space-xl);
       margin-left: 2.5rem;
@@ -414,6 +423,7 @@ export class TimelineDetailComponent implements OnInit {
   error: string | null = null;
   modalOpen = false;
   photosModalEvent: Event | null = null;
+  imagesUploadingBanner = false;
 
   get sortedEvents(): Event[] {
     const dir = this.sortOrder === 'asc' ? 1 : -1;
@@ -506,6 +516,11 @@ export class TimelineDetailComponent implements OnInit {
   onEventCreatedAndClose(): void {
     this.closeModal();
     this.onEventCreated();
+  }
+
+  showImagesUploadingBanner(): void {
+    this.imagesUploadingBanner = true;
+    setTimeout(() => (this.imagesUploadingBanner = false), 8000);
   }
 
   toggleImportant(ev: Event): void {

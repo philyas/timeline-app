@@ -94,6 +94,8 @@ function pad(n: number): string {
 export class EventFormComponent {
   @Input() timelineId!: number;
   @Output() created = new EventEmitter<void>();
+  /** Wird emittiert, wenn Bilder im Hintergrund hochgeladen werden (Event ist bereits gespeichert). */
+  @Output() imagesUploading = new EventEmitter<void>();
 
   title = '';
   year: number | null = null;
@@ -164,21 +166,15 @@ export class EventFormComponent {
           this.selectedFiles = [];
           const input = this.fileInputRef?.nativeElement;
           if (input) input.value = '';
+          this.saving = false;
+          this.created.emit();
           if (files.length) {
+            this.imagesUploading.emit();
             this.api.uploadEventImages(event.id, files).subscribe({
-              next: () => {
-                this.saving = false;
-                this.created.emit();
-              },
-              error: (err) => {
-                this.saving = false;
-                console.error(err?.error?.error || 'Bilder konnten nicht hochgeladen werden.');
-                this.created.emit();
-              },
+              next: () => {},
+              error: (err) =>
+                console.error(err?.error?.error || 'Bilder konnten nicht hochgeladen werden.'),
             });
-          } else {
-            this.saving = false;
-            this.created.emit();
           }
         },
         error: (err) => {
