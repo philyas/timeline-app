@@ -547,6 +547,7 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
       border-radius: 14px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.04);
       transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
     }
     @media (max-width: 599px) {
       .event-card { width: 150px; }
@@ -565,6 +566,8 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
     .event-image {
       width: 100%;
       height: 70px;
+      overflow: hidden;
+      border-radius: 14px 14px 0 0;
     }
     @media (max-width: 599px) {
       .event-image { height: 60px; }
@@ -615,8 +618,8 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
     /* Event Actions – kompakt */
     .event-actions {
       display: flex;
-      gap: 0.2rem;
-      padding: 0.5rem 0.625rem;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
       border-top: 1px solid var(--border-light);
     }
     .action-btn {
@@ -745,7 +748,7 @@ export class TimelineDetailComponent implements OnInit, AfterViewInit, OnDestroy
   private momentumId: number | null = null;
 
   // Timeline calculation – einfache lineare Positionierung
-  private readonly minEventGap = 200;     // Mindestabstand zwischen Events
+  private readonly minEventGap = 260;     // Mindestabstand zwischen Events
   private readonly padding = 150;
 
   get sortedEvents(): Event[] {

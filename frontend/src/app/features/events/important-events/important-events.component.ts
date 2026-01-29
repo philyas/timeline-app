@@ -517,6 +517,7 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
       height: 100px;
       overflow: hidden;
       cursor: pointer;
+      border-radius: 16px 16px 0 0;
     }
     @media (max-width: 599px) {
       .event-image { height: 80px; }
@@ -525,6 +526,7 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
       width: 100%;
       height: 100%;
       object-fit: cover;
+      display: block;
       transition: transform 0.3s;
     }
     .event-image:hover img {
@@ -708,7 +710,7 @@ export class ImportantEventsComponent implements OnInit, AfterViewInit, OnDestro
   private momentumId: number | null = null;
 
   // Timeline calculation – wie Timeline-Detail
-  private readonly minEventGap = 200;
+  private readonly minEventGap = 260;
   private readonly padding = 150;
 
   get sortedEvents(): Event[] {
