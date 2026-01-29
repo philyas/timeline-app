@@ -5,12 +5,13 @@ import { ApiService } from '../../../core/services/api.service';
 import { Timeline, Event, EventImage } from '../../../core/models/timeline.model';
 import { EventFormComponent } from '../../../shared/event-form/event-form.component';
 import { EventPhotosComponent } from '../../../shared/event-photos/event-photos.component';
+import { ImageGalleryModalComponent } from '../../../shared/image-gallery-modal/image-gallery-modal.component';
 import { ModalComponent } from '../../../shared/modal/modal.component';
 
 @Component({
   selector: 'app-timeline-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, EventFormComponent, EventPhotosComponent, ModalComponent],
+  imports: [CommonModule, RouterLink, EventFormComponent, EventPhotosComponent, ImageGalleryModalComponent, ModalComponent],
   template: `
     <div class="timeline-page" [style.--timeline-color]="timeline?.color || '#0d6b5c'">
       <!-- Header -->
@@ -96,7 +97,7 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
                   <div class="event-connector"></div>
                   <div class="event-card" [class.selected]="selectedEvent?.id === ev.id">
                     @if (getMainImage(ev); as img) {
-                      <div class="event-image">
+                      <div class="event-image" (click)="openImageGallery(ev); $event.stopPropagation()" role="button" tabindex="0" (keydown.enter)="openImageGallery(ev)" (keydown.space)="openImageGallery(ev); $event.preventDefault()" [attr.aria-label]="'Bild vergrößern'">
                         <img [src]="imageSrc(img.url)" [alt]="ev.title" loading="lazy" />
                       </div>
                     }
@@ -185,6 +186,16 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
           (updated)="onPhotosUpdated()"
         />
       </app-modal>
+    }
+
+    @if (galleryEvent && galleryEvent.images && galleryEvent.images.length) {
+      <app-image-gallery-modal
+        [isOpen]="true"
+        [images]="galleryEvent.images"
+        [initialIndex]="galleryIndex"
+        [alt]="galleryEvent.title"
+        (closed)="closeImageGallery()"
+      />
     }
   `,
   styles: [`
@@ -568,7 +579,10 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
       height: 70px;
       overflow: hidden;
       border-radius: 14px 14px 0 0;
+      cursor: pointer;
+      transition: opacity 0.2s;
     }
+    .event-image:hover { opacity: 0.92; }
     @media (max-width: 599px) {
       .event-image { height: 60px; }
     }
@@ -732,6 +746,8 @@ export class TimelineDetailComponent implements OnInit, AfterViewInit, OnDestroy
   modalOpen = false;
   editModalEvent: Event | null = null;
   photosModalEvent: Event | null = null;
+  galleryEvent: Event | null = null;
+  galleryIndex = 0;
   imagesUploadingBanner = false;
   selectedEvent: Event | null = null;
   showScrollHint = true;
@@ -1089,6 +1105,18 @@ export class TimelineDetailComponent implements OnInit, AfterViewInit, OnDestroy
 
   closePhotosModal(): void {
     this.photosModalEvent = null;
+  }
+
+  openImageGallery(ev: Event): void {
+    const imgs = ev.images ?? [];
+    if (imgs.length === 0) return;
+    const idx = imgs.findIndex((i) => i.isMain);
+    this.galleryIndex = idx >= 0 ? idx : 0;
+    this.galleryEvent = ev;
+  }
+
+  closeImageGallery(): void {
+    this.galleryEvent = null;
   }
 
   onPhotosUpdated(): void {

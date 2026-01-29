@@ -1,12 +1,13 @@
 import { Component, EventEmitter, Input, Output, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../core/services/api.service';
+import { ImageGalleryModalComponent } from '../image-gallery-modal/image-gallery-modal.component';
 import type { Event as AppEvent, EventImage } from '../../core/models/timeline.model';
 
 @Component({
   selector: 'app-event-photos',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ImageGalleryModalComponent],
   template: `
     <div class="event-photos">
       <div class="upload-row">
@@ -26,9 +27,11 @@ import type { Event as AppEvent, EventImage } from '../../core/models/timeline.m
 
       @if (images.length) {
       <div class="gallery">
-        @for (img of images; track img.id) {
+        @for (img of images; track img.id; let i = $index) {
         <div class="gallery-item">
-          <img [src]="imageSrc(img.url)" [alt]="event?.title ?? ''" loading="lazy" class="thumb" />
+          <button type="button" class="thumb-wrap" (click)="openGallery(i)" [attr.aria-label]="'Bild vergrößern'">
+            <img [src]="imageSrc(img.url)" [alt]="event?.title ?? ''" loading="lazy" class="thumb" />
+          </button>
           <div class="thumb-actions">
             @if (!img.isMain) {
               <button type="button" class="btn-small" (click)="setMain(img)">Als Hauptbild</button>
@@ -46,6 +49,14 @@ import type { Event as AppEvent, EventImage } from '../../core/models/timeline.m
         <p class="muted">Noch keine Bilder. Lade welche hoch.</p>
       }
     </div>
+
+    <app-image-gallery-modal
+      [isOpen]="galleryOpen"
+      [images]="images"
+      [initialIndex]="galleryIndex"
+      [alt]="event?.title ?? ''"
+      (closed)="closeGallery()"
+    />
   `,
   styles: [`
     .event-photos { padding: 0; }
@@ -63,11 +74,22 @@ import type { Event as AppEvent, EventImage } from '../../core/models/timeline.m
       border: 1px solid var(--border-light);
       background: var(--border-light);
     }
+    .thumb-wrap {
+      display: block;
+      width: 100%;
+      padding: 0;
+      border: none;
+      background: none;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .thumb-wrap:hover .thumb { opacity: 0.9; }
     .thumb {
       width: 100%;
       aspect-ratio: 4/3;
       object-fit: cover;
       display: block;
+      transition: opacity 0.2s;
     }
     .thumb-actions {
       padding: 0.35rem 0.5rem;
@@ -87,6 +109,8 @@ export class EventPhotosComponent {
   @ViewChild('fileInput') fileInputRef?: ElementRef<HTMLInputElement>;
 
   uploading = false;
+  galleryOpen = false;
+  galleryIndex = 0;
 
   get images(): EventImage[] {
     return this.event?.images ?? [];
@@ -129,5 +153,14 @@ export class EventPhotosComponent {
       next: () => this.updated.emit(),
       error: () => {},
     });
+  }
+
+  openGallery(index: number): void {
+    this.galleryIndex = index;
+    this.galleryOpen = true;
+  }
+
+  closeGallery(): void {
+    this.galleryOpen = false;
   }
 }
