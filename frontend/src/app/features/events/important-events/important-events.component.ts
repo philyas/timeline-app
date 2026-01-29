@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterViewInit, OnDestroy, ElementRef, ViewChild, HostListener } from '@angular/core';
-import { CommonModule, SlicePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../../core/services/api.service';
 import { Event, EventImage } from '../../../core/models/timeline.model';
@@ -8,7 +8,7 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
 @Component({
   selector: 'app-important-events',
   standalone: true,
-  imports: [CommonModule, SlicePipe, RouterLink, ModalComponent],
+  imports: [CommonModule, RouterLink, ModalComponent],
   template: `
     <div class="important-page">
       <!-- Header -->
@@ -104,7 +104,7 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
                       </a>
                     }
                     @if (ev.description) {
-                      <p>{{ ev.description | slice:0:60 }}{{ ev.description.length > 60 ? '…' : '' }}</p>
+                      <p class="event-desc">{{ ev.description }}</p>
                     }
                   </div>
                   @if (selectedEvent?.id === ev.id && ev.images && ev.images.length > 0) {
@@ -552,8 +552,8 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
       font-weight: 600;
       color: var(--important);
       background: var(--important-soft);
-      padding: 0.2rem 0.5rem;
-      border-radius: 4px;
+      padding: 0.3rem 0.65rem;
+      border-radius: 6px;
       margin-bottom: 0.5rem;
     }
     .event-info h3 {
@@ -576,11 +576,16 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
       color: var(--important);
       text-decoration: none;
     }
-    .event-info p {
+    .event-info p.event-desc {
       font-size: 0.75rem;
       color: var(--text-secondary);
       margin: 0.375rem 0 0;
       line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     /* Event Actions */

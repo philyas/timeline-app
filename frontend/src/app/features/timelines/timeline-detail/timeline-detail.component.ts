@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterViewInit, OnDestroy, ElementRef, ViewChild, HostListener } from '@angular/core';
-import { CommonModule, SlicePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ApiService } from '../../../core/services/api.service';
 import { Timeline, Event, EventImage } from '../../../core/models/timeline.model';
@@ -10,7 +10,7 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
 @Component({
   selector: 'app-timeline-detail',
   standalone: true,
-  imports: [CommonModule, SlicePipe, RouterLink, EventFormComponent, EventPhotosComponent, ModalComponent],
+  imports: [CommonModule, RouterLink, EventFormComponent, EventPhotosComponent, ModalComponent],
   template: `
     <div class="timeline-page" [style.--timeline-color]="timeline?.color || '#0d6b5c'">
       <!-- Header -->
@@ -104,7 +104,7 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
                       <span class="event-year">{{ formatYear(ev) }}</span>
                       <h3>{{ ev.title }}</h3>
                       @if (ev.description) {
-                        <p>{{ ev.description | slice:0:80 }}{{ ev.description.length > 80 ? '…' : '' }}</p>
+                        <p class="event-desc">{{ ev.description }}</p>
                       }
                     </div>
                     @if (selectedEvent?.id === ev.id) {
@@ -586,7 +586,7 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
       line-height: 1.25;
       letter-spacing: -0.01em;
     }
-    .event-info p {
+    .event-info p.event-desc {
       font-size: 0.6875rem;
       color: var(--text-secondary);
       margin: 0.25rem 0 0;
@@ -594,6 +594,8 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .event-year {
       display: inline-block;
@@ -601,8 +603,8 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
       font-weight: 600;
       color: var(--timeline-color);
       background: color-mix(in srgb, var(--timeline-color) 10%, transparent);
-      padding: 0.15rem 0.4rem;
-      border-radius: 4px;
+      padding: 0.3rem 0.65rem;
+      border-radius: 6px;
       margin-bottom: 0.35rem;
     }
     .event-node.important .event-year {
