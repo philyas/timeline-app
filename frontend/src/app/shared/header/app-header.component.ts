@@ -51,6 +51,11 @@ import { UserMenuComponent } from '../user-menu/user-menu.component';
       top: 0;
       z-index: 20;
     }
+    @media (max-width: 599px) {
+      .header { padding-top: env(safe-area-inset-top); }
+      .header-inner { min-height: 48px; }
+      .logo { font-size: 1.15rem; padding: 0.25rem 0; }
+    }
     .header::after {
       content: '';
       position: absolute;

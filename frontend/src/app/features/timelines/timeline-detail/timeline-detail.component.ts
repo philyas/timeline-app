@@ -12,74 +12,90 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
   standalone: true,
   imports: [CommonModule, RouterLink, EventFormComponent, EventPhotosComponent, ModalComponent],
   template: `
-    <div class="container">
-      <a routerLink="/timelines" class="back">← Zeitstrahlen</a>
+    <div class="timeline-detail-layout">
+      <div class="timeline-detail-top">
+        <div class="container">
+          @if (loading) {
+            <a routerLink="/timelines" class="back back--full">← Zeitstrahlen</a>
+            <a routerLink="/timelines" class="back back--icon" aria-label="Zurück zu Zeitstrahlen">←</a>
+            <p class="muted">Lade Zeitstrahl…</p>
+          } @else if (error) {
+            <a routerLink="/timelines" class="back back--full">← Zeitstrahlen</a>
+            <a routerLink="/timelines" class="back back--icon" aria-label="Zurück zu Zeitstrahlen">←</a>
+            <p class="error">{{ error }}</p>
+          } @else if (timeline) {
+            <a routerLink="/timelines" class="back back--full">← Zeitstrahlen</a>
+            <header class="timeline-header" [style.--timeline-color]="timeline.color || '#0d6b5c'">
+              <div class="header-top">
+                <a routerLink="/timelines" class="back-inline" aria-label="Zurück zu Zeitstrahlen">←</a>
+                <div class="header-title">
+                  <span class="dot"></span>
+                  <h1>{{ timeline.name }}</h1>
+                </div>
+                <button type="button" class="btn-small btn-secondary btn-delete-timeline" (click)="deleteTimeline()">
+                  Zeitlinie löschen
+                </button>
+              </div>
+              @if (timeline.description) {
+                <p class="desc">{{ timeline.description }}</p>
+              }
+            </header>
 
-      @if (loading) {
-        <p class="muted">Lade Zeitstrahl…</p>
-      } @else if (error) {
-        <p class="error">{{ error }}</p>
-      } @else if (timeline) {
-        <header class="timeline-header" [style.--timeline-color]="timeline.color || '#0d6b5c'">
-          <div class="header-top">
-            <div class="header-title">
-              <span class="dot"></span>
-              <h1>{{ timeline.name }}</h1>
-            </div>
-            <button type="button" class="btn-small btn-secondary btn-delete-timeline" (click)="deleteTimeline()">
-              Zeitlinie löschen
-            </button>
-          </div>
-          @if (timeline.description) {
-            <p class="desc">{{ timeline.description }}</p>
-          }
-        </header>
-
-        @if (events.length) {
-          <div class="sort-bar">
-            <span class="sort-label">Reihenfolge:</span>
-            <div class="sort-toggle" role="group" aria-label="Sortierung">
-              <button type="button" class="sort-btn" [class.active]="sortOrder === 'asc'" (click)="setSortOrder('asc')">
-                Älteste zuerst
-              </button>
-              <button type="button" class="sort-btn" [class.active]="sortOrder === 'desc'" (click)="setSortOrder('desc')">
-                Neueste zuerst
-              </button>
-            </div>
-          </div>
-        }
-
-        <div class="timeline-visual" [style.--timeline-color]="timeline.color || '#0d6b5c'">
-          @for (ev of sortedEvents; track ev.id) {
-            <div class="event-row" [class.important]="ev.isImportant">
-              <span class="year-badge">{{ formatYear(ev) }}</span>
-              <div class="event-body">
-                <div class="event-content">
-                  <div class="event-main">
-                    <div class="event-text">
-                      <h3>{{ ev.title }}</h3>
-                      @if (ev.month) {
-                        <span class="date-detail">{{ formatDate(ev) }}</span>
-                      }
-                      @if (ev.description) {
-                        <p>{{ ev.description }}</p>
-                      }
-                    </div>
-                    @if (getMainImage(ev); as img) {
-                      <img [src]="imageSrc(img.url)" [alt]="ev.title" class="event-thumb" loading="lazy" />
-                    }
-                  </div>
-                  <div class="actions-inline">
-                    <button type="button" class="btn-small" [class.btn-important]="ev.isImportant" (click)="toggleImportant(ev)">
-                      {{ ev.isImportant ? '★ Wichtig' : '☆ Als wichtig markieren' }}
-                    </button>
-                    <button type="button" class="btn-small btn-secondary" (click)="openPhotosModal(ev)">Fotos</button>
-                    <button type="button" class="btn-small btn-secondary" (click)="deleteEvent(ev)">Löschen</button>
-                  </div>
+            @if (events.length) {
+              <div class="sort-bar">
+                <span class="sort-label">Reihenfolge:</span>
+                <div class="sort-toggle" role="group" aria-label="Sortierung">
+                  <button type="button" class="sort-btn" [class.active]="sortOrder === 'asc'" (click)="setSortOrder('asc')">
+                    Älteste zuerst
+                  </button>
+                  <button type="button" class="sort-btn" [class.active]="sortOrder === 'desc'" (click)="setSortOrder('desc')">
+                    Neueste zuerst
+                  </button>
                 </div>
               </div>
-            </div>
+            }
           }
+        </div>
+      </div>
+
+      @if (timeline && !loading && !error) {
+        <div class="timeline-scroll-wrap">
+          <div class="timeline-scroll">
+            <div class="container">
+              <div class="timeline-visual" [style.--timeline-color]="timeline.color || '#0d6b5c'">
+              @for (ev of sortedEvents; track ev.id) {
+                <div class="event-row" [class.important]="ev.isImportant">
+                  <span class="year-badge">{{ formatYear(ev) }}</span>
+                  <div class="event-body">
+                    <div class="event-content">
+                      <div class="event-main">
+                        <div class="event-text">
+                          <h3>{{ ev.title }}</h3>
+                          @if (ev.month) {
+                            <span class="date-detail">{{ formatDate(ev) }}</span>
+                          }
+                          @if (ev.description) {
+                            <p>{{ ev.description }}</p>
+                          }
+                        </div>
+                        @if (getMainImage(ev); as img) {
+                          <img [src]="imageSrc(img.url)" [alt]="ev.title" class="event-thumb" loading="lazy" />
+                        }
+                      </div>
+                      <div class="actions-inline">
+                        <button type="button" class="btn-small" [class.btn-important]="ev.isImportant" (click)="toggleImportant(ev)">
+                          {{ ev.isImportant ? '★ Wichtig' : '☆ Als wichtig markieren' }}
+                        </button>
+                        <button type="button" class="btn-small btn-secondary" (click)="openPhotosModal(ev)">Fotos</button>
+                        <button type="button" class="btn-small btn-secondary" (click)="deleteEvent(ev)">Löschen</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              }
+              </div>
+            </div>
+          </div>
         </div>
       }
     </div>
@@ -110,6 +126,71 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
     }
   `,
   styles: [`
+    .timeline-detail-layout {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    @media (max-width: 599px) {
+      .timeline-detail-layout { flex: 1; min-height: 0; overflow: hidden; }
+      .timeline-detail-top { flex-shrink: 0; }
+      .back--full { display: none !important; }
+      .back--icon {
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        min-width: 36px;
+        height: 36px;
+        margin-bottom: 0.35rem;
+        padding: 0;
+        font-size: 1.1rem;
+        color: var(--text-secondary);
+        background: var(--border-light);
+        border-radius: 8px;
+        -webkit-tap-highlight-color: transparent;
+        transition: color 0.2s, background 0.2s;
+      }
+      .back--icon:hover { color: var(--accent); background: var(--border); }
+      .back-inline {
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 34px;
+        height: 34px;
+        margin-right: 0.35rem;
+        padding: 0;
+        font-size: 1.1rem;
+        color: var(--text-secondary);
+        background: var(--border-light);
+        border-radius: 8px;
+        -webkit-tap-highlight-color: transparent;
+        transition: color 0.2s, background 0.2s;
+      }
+      .back-inline:hover { color: var(--accent); background: var(--border); }
+      .timeline-scroll-wrap {
+        flex: 1;
+        min-height: 0;
+        position: relative;
+      }
+      .timeline-scroll {
+        position: absolute;
+        inset: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-y: contain;
+        touch-action: pan-y;
+      }
+      .timeline-scroll .container {
+        padding-bottom: calc(64px + var(--space-md) + env(safe-area-inset-bottom));
+      }
+    }
+    @media (min-width: 600px) {
+      .back--icon { display: none !important; }
+      .back-inline { display: none !important; }
+    }
     .back {
       display: inline-flex;
       align-items: center;
@@ -127,6 +208,32 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
       margin-bottom: var(--space-xl);
       padding-bottom: var(--space-md);
       border-bottom: 1px solid var(--border-light);
+    }
+    @media (max-width: 599px) {
+      .timeline-detail-top .container { padding-top: 0; }
+      .timeline-detail-top .timeline-header {
+        margin-bottom: 0.5rem;
+        padding-bottom: 0.35rem;
+        border-bottom-width: 1px;
+      }
+      .timeline-detail-top .header-top { gap: 0.35rem; }
+      .timeline-detail-top .header-title .dot { width: 10px; height: 10px; }
+      .timeline-detail-top .header-title h1 { font-size: 1.15rem; }
+      .timeline-detail-top .desc {
+        font-size: 0.8125rem;
+        margin-top: 0.2rem;
+        margin-bottom: 0;
+        line-height: 1.4;
+      }
+      .timeline-detail-top .sort-bar {
+        margin-bottom: 0.5rem;
+        gap: 0.35rem 0.5rem;
+      }
+      .timeline-detail-top .sort-label { font-size: 0.75rem; }
+      .timeline-detail-top .sort-toggle { padding: 2px; }
+      .sort-btn { min-height: 34px; padding: 0 0.6rem; font-size: 0.75rem; }
+      .timeline-detail-top .btn-delete-timeline,
+      .timeline-detail-top .btn-small { min-height: 34px; padding: 0.3rem 0.6rem; font-size: 0.75rem; }
     }
     .header-top {
       display: flex;
