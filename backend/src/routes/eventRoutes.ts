@@ -17,6 +17,7 @@ const router = Router();
 
 router.use(jwtAuth);
 
+// Wichtige Ereignisse – muss vor /:id stehen, damit "important" nicht als ID geparst wird
 router.get('/important', getImportantEvents);
 router.get('/timeline/:timelineId', getEventsByTimeline);
 router.post('/:id/images', uploadEventImage.array('images', 10), uploadEventImages);

@@ -90,7 +90,7 @@ export class EventService {
   async findImportant(limit: number, userId: number): Promise<Event[]> {
     const knex = getKnex();
     const rows = await knex('events')
-      .leftJoin('timelines', 'events.timeline_id', 'timelines.id')
+      .innerJoin('timelines', 'events.timeline_id', 'timelines.id')
       .where('events.is_important', true)
       .where('timelines.user_id', userId)
       .orderBy('events.year', 'asc')
