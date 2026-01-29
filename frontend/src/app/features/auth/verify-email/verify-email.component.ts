@@ -8,31 +8,84 @@ import { AuthService } from '../../../core/services/auth.service';
   standalone: true,
   imports: [CommonModule, RouterLink],
   template: `
-    <div class="container">
-      <div class="auth-card card">
-        <header class="page-intro">
-          <h1>E-Mail bestätigen</h1>
-          <p class="subtitle">Deine E-Mail-Adresse wird verifiziert…</p>
-        </header>
+    <div class="auth-page">
+      <div class="auth-container">
+        <div class="auth-card">
+          <header class="auth-header">
+            <h1>E-Mail bestätigen</h1>
+            <p class="auth-subtitle">Deine E-Mail-Adresse wird verifiziert…</p>
+          </header>
 
-        @if (loading) {
-          <p class="muted">Bitte warten…</p>
-        } @else if (error) {
-          <p class="error">{{ error }}</p>
-          <a routerLink="/login" class="btn">Zum Login</a>
-        } @else if (success) {
-          <p class="success">{{ success }}</p>
-          <a routerLink="/login" class="btn">Jetzt anmelden</a>
-        }
+          @if (loading) {
+            <div class="auth-loading">
+              <div class="loading-spinner"></div>
+              <p>Bitte warten…</p>
+            </div>
+          } @else if (error) {
+            <div class="auth-error">{{ error }}</div>
+            <a routerLink="/login" class="btn" style="width: 100%; text-align: center; margin-top: 1rem;">Zum Login</a>
+          } @else if (success) {
+            <div class="auth-success">{{ success }}</div>
+            <a routerLink="/login" class="btn" style="width: 100%; text-align: center; margin-top: 1rem;">Jetzt anmelden</a>
+          }
+        </div>
       </div>
     </div>
   `,
   styles: [`
-    .auth-card { max-width: 420px; margin-left: auto; margin-right: auto; }
-    .auth-card .page-intro { margin-bottom: var(--space-md); padding-bottom: var(--space-sm); }
-    .auth-card .error { margin-bottom: var(--space-sm); }
-    .auth-card .success { margin-bottom: var(--space-sm); color: var(--accent); font-weight: 500; }
-    .auth-card .btn { display: inline-block; margin-top: var(--space-sm); }
+    .auth-page {
+      min-height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-xl) var(--container-padding);
+    }
+    .auth-container { width: 100%; max-width: 420px; }
+    .auth-card {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-hover);
+      border: 1px solid var(--border-light);
+      padding: var(--space-xl);
+    }
+    .auth-header { margin-bottom: var(--space-lg); }
+    .auth-header h1 { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 0.5rem; }
+    .auth-subtitle { color: var(--text-secondary); font-size: 1rem; margin: 0; line-height: 1.5; }
+    .auth-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      padding: var(--space-md) 0;
+      color: var(--text-secondary);
+    }
+    .loading-spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid var(--border-light);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .auth-error {
+      padding: 0.75rem 1rem;
+      background: rgba(196, 30, 58, 0.08);
+      color: #c41e3a;
+      border-radius: var(--radius-sm);
+      font-size: 0.9375rem;
+      font-weight: 500;
+    }
+    .auth-success {
+      padding: 0.75rem 1rem;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-radius: var(--radius-sm);
+      font-size: 0.9375rem;
+      font-weight: 500;
+    }
   `],
 })
 export class VerifyEmailComponent implements OnInit {

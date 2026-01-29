@@ -9,49 +9,92 @@ import { AuthService } from '../../../core/services/auth.service';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   template: `
-    <div class="container">
-      <div class="auth-card card">
-        <header class="page-intro">
-          <h1>Passwort vergessen</h1>
-          <p class="subtitle">Gib deine E-Mail-Adresse ein. Wir schicken dir einen Link zum Zurücksetzen des Passworts.</p>
-        </header>
+    <div class="auth-page">
+      <div class="auth-container">
+        <div class="auth-card">
+          <header class="auth-header">
+            <h1>Passwort vergessen</h1>
+            <p class="auth-subtitle">Gib deine E-Mail-Adresse ein. Wir schicken dir einen Link zum Zurücksetzen.</p>
+          </header>
 
-        @if (error) {
-          <p class="error">{{ error }}</p>
-        }
-        @if (success) {
-          <p class="success">{{ success }}</p>
-        }
+          @if (error) {
+            <div class="auth-error">{{ error }}</div>
+          }
+          @if (success) {
+            <div class="auth-success">{{ success }}</div>
+          }
 
-        @if (!success) {
-          <form (ngSubmit)="onSubmit()">
-            <label class="label">E-Mail</label>
-            <input type="email" name="email" [(ngModel)]="email" required placeholder="deine@email.de" />
-            <div class="actions">
-              <button type="submit" [disabled]="saving">{{ saving ? 'Wird gesendet…' : 'Link senden' }}</button>
+          @if (!success) {
+            <form (ngSubmit)="onSubmit()" class="auth-form">
+              <label class="label">E-Mail</label>
+              <input type="email" name="email" [(ngModel)]="email" required placeholder="deine@email.de" />
+              <div class="auth-actions">
+                <button type="submit" [disabled]="saving">{{ saving ? 'Wird gesendet…' : 'Link senden' }}</button>
+              </div>
+            </form>
+          } @else {
+            <div class="auth-actions" style="margin-top: 1rem;">
+              <a routerLink="/login" class="btn" style="width: 100%; text-align: center;">Zurück zum Login</a>
             </div>
-          </form>
-        } @else {
-          <div class="actions">
-            <a routerLink="/login" class="btn">Zurück zum Login</a>
-          </div>
-        }
+          }
 
-        <p class="auth-footer">
-          <a routerLink="/login">← Zurück zum Login</a>
-        </p>
+          <p class="auth-footer">
+            <a routerLink="/login">← Zurück zum Login</a>
+          </p>
+        </div>
       </div>
     </div>
   `,
   styles: [`
-    .auth-card { max-width: 420px; margin-left: auto; margin-right: auto; }
-    .auth-card .page-intro { margin-bottom: var(--space-md); padding-bottom: var(--space-sm); }
-    .auth-card .error { margin-bottom: var(--space-sm); }
-    .auth-card .success { margin-bottom: var(--space-sm); color: var(--accent); font-weight: 500; }
-    .auth-card form { display: flex; flex-direction: column; gap: var(--space-sm); }
-    .actions { display: flex; flex-direction: column; gap: var(--space-sm); margin-top: var(--space-sm); }
-    .actions button, .actions a.btn { width: 100%; text-align: center; }
-    .auth-footer { margin-top: var(--space-lg); padding-top: var(--space-md); border-top: 1px solid var(--border-light); text-align: center; }
+    .auth-page {
+      min-height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-xl) var(--container-padding);
+    }
+    .auth-container { width: 100%; max-width: 420px; }
+    .auth-card {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-hover);
+      border: 1px solid var(--border-light);
+      padding: var(--space-xl);
+    }
+    .auth-header { margin-bottom: var(--space-lg); }
+    .auth-header h1 { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 0.5rem; }
+    .auth-subtitle { color: var(--text-secondary); font-size: 1rem; margin: 0; line-height: 1.5; }
+    .auth-error {
+      padding: 0.75rem 1rem;
+      background: rgba(196, 30, 58, 0.08);
+      color: #c41e3a;
+      border-radius: var(--radius-sm);
+      font-size: 0.9375rem;
+      font-weight: 500;
+      margin-bottom: var(--space-md);
+    }
+    .auth-success {
+      padding: 0.75rem 1rem;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-radius: var(--radius-sm);
+      font-size: 0.9375rem;
+      font-weight: 500;
+      margin-bottom: var(--space-md);
+    }
+    .auth-form { display: flex; flex-direction: column; gap: var(--space-md); }
+    .auth-actions { display: flex; flex-direction: column; gap: var(--space-sm); margin-top: 0.5rem; }
+    .auth-actions button, .auth-actions .btn { width: 100%; }
+    .auth-footer {
+      margin-top: var(--space-xl);
+      padding-top: var(--space-lg);
+      border-top: 1px solid var(--border-light);
+      text-align: center;
+    }
+    .auth-footer a { font-size: 0.9375rem; color: var(--text-secondary); }
+    .auth-footer a:hover { color: var(--accent); }
   `],
 })
 export class ForgotPasswordComponent {

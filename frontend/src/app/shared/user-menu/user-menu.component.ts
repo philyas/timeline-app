@@ -32,7 +32,11 @@ import { ModalComponent } from '../modal/modal.component';
           aria-label="Konto-Menü"
         >
           <span class="user-menu-label">{{ displayName }}</span>
-          <span class="user-menu-chevron" [class.open]="open" aria-hidden="true">▼</span>
+          <span class="user-menu-chevron" [class.open]="open" aria-hidden="true">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M6 9l6 6 6-6"/>
+            </svg>
+          </span>
         </button>
         @if (open) {
           <div class="user-menu-dropdown" role="menu">
@@ -75,16 +79,16 @@ import { ModalComponent } from '../modal/modal.component';
     .user-menu-trigger {
       display: flex;
       align-items: center;
-      gap: 0.35rem;
+      gap: 0.375rem;
       padding: 0.5rem 0.75rem;
-      min-height: var(--touch-min);
+      min-height: 36px;
       border: none;
       background: none;
       color: var(--text-secondary);
       font-size: 0.9375rem;
       font-weight: 500;
       cursor: pointer;
-      border-radius: var(--radius-sm);
+      border-radius: 10px;
       -webkit-tap-highlight-color: transparent;
       transition: color 0.2s, background 0.2s;
     }
@@ -100,9 +104,11 @@ import { ModalComponent } from '../modal/modal.component';
       white-space: nowrap;
     }
     .user-menu-chevron {
-      font-size: 0.6rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       opacity: 0.7;
-      transition: transform 0.2s;
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .user-menu-chevron.open {
       transform: rotate(180deg);
@@ -111,26 +117,28 @@ import { ModalComponent } from '../modal/modal.component';
       position: absolute;
       top: 100%;
       right: 0;
-      margin-top: 0.25rem;
-      min-width: 180px;
-      background: var(--bg-card);
+      margin-top: 0.375rem;
+      min-width: 200px;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border-radius: var(--radius-sm);
-      box-shadow: var(--shadow-hover);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.05);
       border: 1px solid var(--border-light);
-      padding: 0.25rem;
+      padding: 0.375rem;
       z-index: 10;
     }
     .user-menu-item {
       display: block;
       width: 100%;
       text-align: left;
-      padding: 0.5rem 0.75rem;
+      padding: 0.625rem 0.875rem;
       font-size: 0.9375rem;
       font-weight: 500;
       color: var(--text-secondary);
       background: none;
       border: none;
-      border-radius: var(--radius-sm);
+      border-radius: 10px;
       cursor: pointer;
       text-decoration: none;
       -webkit-tap-highlight-color: transparent;
@@ -140,11 +148,12 @@ import { ModalComponent } from '../modal/modal.component';
       color: var(--accent);
       background: var(--accent-soft);
     }
-    .user-menu-item--logout {
-      color: var(--text-secondary);
+    .user-menu-item--logout:hover {
+      color: var(--text);
+      background: var(--border-light);
     }
     .user-menu-email {
-      padding: 0.4rem 0.75rem 0.25rem;
+      padding: 0.5rem 0.875rem 0.375rem;
       font-size: 0.8125rem;
       color: var(--text-muted);
       overflow: hidden;
@@ -152,7 +161,7 @@ import { ModalComponent } from '../modal/modal.component';
       white-space: nowrap;
       max-width: 100%;
       border-bottom: 1px solid var(--border-light);
-      margin-bottom: 0.15rem;
+      margin-bottom: 0.25rem;
     }
     @media (max-width: 599px) {
       .user-menu-dropdown {
@@ -164,7 +173,7 @@ import { ModalComponent } from '../modal/modal.component';
     .user-inline {
       display: flex;
       flex-direction: column;
-      gap: 0.35rem;
+      gap: 0.25rem;
     }
     .user-inline-email {
       font-size: 0.8125rem;
@@ -177,13 +186,13 @@ import { ModalComponent } from '../modal/modal.component';
       display: block;
       width: 100%;
       text-align: left;
-      padding: 0.5rem 0.75rem;
+      padding: 0.625rem 0.875rem;
       font-size: 0.9375rem;
       font-weight: 500;
       color: var(--text-secondary);
       background: none;
       border: none;
-      border-radius: var(--radius-sm);
+      border-radius: 10px;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
       transition: color 0.2s, background 0.2s;
@@ -193,7 +202,8 @@ import { ModalComponent } from '../modal/modal.component';
       background: var(--accent-soft);
     }
     .user-inline-btn--logout:hover {
-      color: var(--text-secondary);
+      color: var(--text);
+      background: var(--border-light);
     }
   `],
 })

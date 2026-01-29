@@ -37,62 +37,105 @@ import { AuthService } from '../../../core/services/auth.service';
         }
       </div>
     } @else {
-      <div class="container">
-      <div class="auth-card card">
-        <header class="page-intro">
-          <h1>Passwort ändern</h1>
-          <p class="subtitle">Gib dein aktuelles Passwort und das neue Passwort ein (min. 8 Zeichen).</p>
-        </header>
+      <div class="auth-page">
+        <div class="auth-container">
+          <div class="auth-card">
+            <header class="auth-header">
+              <h1>Passwort ändern</h1>
+              <p class="auth-subtitle">Gib dein aktuelles Passwort und das neue Passwort ein (min. 8 Zeichen).</p>
+            </header>
 
-        @if (error) {
-          <p class="error">{{ error }}</p>
-        }
-        @if (success) {
-          <p class="success">{{ success }}</p>
-          <div class="actions actions-single">
-            <a routerLink="/timelines" class="btn">Zurück zu Zeitstrahlen</a>
+            @if (error) {
+              <div class="auth-error">{{ error }}</div>
+            }
+            @if (success) {
+              <div class="auth-success">{{ success }}</div>
+              <div class="auth-actions" style="margin-top: 1rem;">
+                <a routerLink="/timelines" class="btn" style="width: 100%; text-align: center;">Zurück zu Zeitstrahlen</a>
+              </div>
+            } @else {
+              <form (ngSubmit)="onSubmit()" class="auth-form">
+                <label class="label">Aktuelles Passwort</label>
+                <input type="password" name="current" [(ngModel)]="currentPassword" required placeholder="••••••••" />
+                <label class="label">Neues Passwort</label>
+                <input type="password" name="password" [(ngModel)]="newPassword" required placeholder="••••••••" minlength="8" />
+                <label class="label">Neues Passwort bestätigen</label>
+                <input type="password" name="confirm" [(ngModel)]="confirm" required placeholder="••••••••" minlength="8" />
+                <div class="auth-actions">
+                  <a routerLink="/timelines" class="btn btn-secondary" style="flex: 1; text-align: center;">Abbrechen</a>
+                  <button type="submit" [disabled]="saving">{{ saving ? 'Wird gespeichert…' : 'Passwort ändern' }}</button>
+                </div>
+              </form>
+            }
+
+            <p class="auth-footer">
+              <a routerLink="/timelines">← Zurück zu Zeitstrahlen</a>
+            </p>
           </div>
-        } @else {
-          <form (ngSubmit)="onSubmit()">
-            <label class="label">Aktuelles Passwort</label>
-            <input type="password" name="current" [(ngModel)]="currentPassword" required placeholder="••••••••" />
-            <label class="label">Neues Passwort</label>
-            <input type="password" name="password" [(ngModel)]="newPassword" required placeholder="••••••••" minlength="8" />
-            <label class="label">Neues Passwort bestätigen</label>
-            <input type="password" name="confirm" [(ngModel)]="confirm" required placeholder="••••••••" minlength="8" />
-            <div class="actions">
-              <a routerLink="/timelines" class="btn btn-secondary">Abbrechen</a>
-              <button type="submit" [disabled]="saving">{{ saving ? 'Wird gespeichert…' : 'Passwort ändern' }}</button>
-            </div>
-          </form>
-        }
-
-        <p class="auth-footer">
-          <a routerLink="/timelines">← Zurück zu Zeitstrahlen</a>
-        </p>
-      </div>
+        </div>
       </div>
     }
   `,
   styles: [`
     .change-password-modal { padding: 0; }
-    .change-password-modal .error { margin: 0 0 0.2rem; font-size: 0.7rem; }
-    .change-password-modal .success { margin: 0 0 0.2rem; font-size: 0.7rem; color: var(--accent); font-weight: 500; }
-    .change-password-modal .cp-row { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.2rem; }
-    .change-password-modal .cp-label { flex: 0 0 56px; font-size: 0.7rem; color: var(--text-secondary); }
-    .change-password-modal input { flex: 1; padding: 0.2rem 0.35rem; font-size: 0.8125rem; min-height: 26px; border-radius: 6px; }
-    .change-password-modal .cp-actions { display: flex; gap: 0.3rem; margin-top: 0.3rem; }
-    .change-password-modal .cp-actions .btn, .change-password-modal .cp-actions button { flex: 1; padding: 0.2rem 0.35rem; font-size: 0.75rem; min-height: 26px; }
-    .change-password-modal .btn-block { width: 100%; margin-top: 0.2rem; padding: 0.2rem; font-size: 0.75rem; min-height: 26px; }
-    .auth-card { max-width: 420px; margin-left: auto; margin-right: auto; }
-    .auth-card .page-intro { margin-bottom: var(--space-md); padding-bottom: var(--space-sm); }
-    .auth-card .error { margin-bottom: var(--space-sm); }
-    .auth-card .success { margin-bottom: var(--space-sm); color: var(--accent); font-weight: 500; }
-    .auth-card form { display: flex; flex-direction: column; gap: var(--space-sm); }
-    .actions { display: flex; gap: var(--space-sm); margin-top: var(--space-sm); flex-wrap: wrap; }
-    .actions a.btn, .actions button { flex: 1; min-width: 120px; text-align: center; }
-    .actions-single .btn { flex: none; }
-    .auth-footer { margin-top: var(--space-lg); padding-top: var(--space-md); border-top: 1px solid var(--border-light); text-align: center; }
+    .change-password-modal .error { margin: 0 0 0.5rem; font-size: 0.8125rem; color: #c41e3a; font-weight: 500; }
+    .change-password-modal .success { margin: 0 0 0.5rem; font-size: 0.8125rem; color: var(--accent); font-weight: 500; }
+    .change-password-modal .cp-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+    .change-password-modal .cp-label { flex: 0 0 56px; font-size: 0.75rem; color: var(--text-secondary); font-weight: 500; }
+    .change-password-modal input { flex: 1; padding: 0.4rem 0.5rem; font-size: 0.875rem; min-height: 36px; border-radius: 10px; }
+    .change-password-modal .cp-actions { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+    .change-password-modal .cp-actions .btn, .change-password-modal .cp-actions button { flex: 1; padding: 0.4rem; font-size: 0.8125rem; min-height: 36px; }
+    .change-password-modal .btn-block { width: 100%; margin-top: 0.5rem; padding: 0.5rem; font-size: 0.875rem; min-height: 44px; }
+
+    .auth-page {
+      min-height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-xl) var(--container-padding);
+    }
+    .auth-container { width: 100%; max-width: 420px; }
+    .auth-card {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-hover);
+      border: 1px solid var(--border-light);
+      padding: var(--space-xl);
+    }
+    .auth-header { margin-bottom: var(--space-lg); }
+    .auth-header h1 { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 0.5rem; }
+    .auth-subtitle { color: var(--text-secondary); font-size: 1rem; margin: 0; line-height: 1.5; }
+    .auth-error {
+      padding: 0.75rem 1rem;
+      background: rgba(196, 30, 58, 0.08);
+      color: #c41e3a;
+      border-radius: var(--radius-sm);
+      font-size: 0.9375rem;
+      font-weight: 500;
+      margin-bottom: var(--space-md);
+    }
+    .auth-success {
+      padding: 0.75rem 1rem;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-radius: var(--radius-sm);
+      font-size: 0.9375rem;
+      font-weight: 500;
+      margin-bottom: var(--space-md);
+    }
+    .auth-form { display: flex; flex-direction: column; gap: var(--space-md); }
+    .auth-actions { display: flex; gap: var(--space-sm); margin-top: 0.5rem; flex-wrap: wrap; }
+    .auth-actions a.btn, .auth-actions button { flex: 1; min-width: 120px; }
+    .auth-footer {
+      margin-top: var(--space-xl);
+      padding-top: var(--space-lg);
+      border-top: 1px solid var(--border-light);
+      text-align: center;
+    }
+    .auth-footer a { font-size: 0.9375rem; color: var(--text-secondary); }
+    .auth-footer a:hover { color: var(--accent); }
   `],
 })
 export class ChangePasswordComponent {

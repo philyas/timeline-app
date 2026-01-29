@@ -31,7 +31,9 @@ import { CommonModule } from '@angular/common';
               (click)="close()"
               [attr.aria-label]="'Schließen'"
             >
-              <span class="modal-close-icon" aria-hidden="true">×</span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 6L6 18M6 6l12 12"/>
+              </svg>
             </button>
           </div>
           <div class="modal-body">
@@ -49,17 +51,19 @@ import { CommonModule } from '@angular/common';
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: var(--space-md);
+      padding-left: calc(var(--space-md) + env(safe-area-inset-left));
+      padding-right: calc(var(--space-md) + env(safe-area-inset-right));
+      padding-bottom: calc(var(--space-md) + env(safe-area-inset-bottom));
+      background: rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    .modal-overlay--compact {
       padding: var(--space-sm);
       padding-left: calc(var(--space-sm) + env(safe-area-inset-left));
       padding-right: calc(var(--space-sm) + env(safe-area-inset-right));
       padding-bottom: calc(var(--space-sm) + env(safe-area-inset-bottom));
-      background: rgba(0, 0, 0, 0.4);
-    }
-    .modal-overlay--compact {
-      padding: 0.35rem;
-      padding-left: calc(0.35rem + env(safe-area-inset-left));
-      padding-right: calc(0.35rem + env(safe-area-inset-right));
-      padding-bottom: calc(0.35rem + env(safe-area-inset-bottom));
     }
     .modal-overlay:not(.modal-overlay--compact) {
       overflow-y: auto;
@@ -68,38 +72,37 @@ import { CommonModule } from '@angular/common';
     .modal-dialog {
       width: 100%;
       max-width: 480px;
-      max-height: calc(100vh - 2 * var(--space-sm));
-      max-height: calc(100dvh - 2 * var(--space-sm));
+      max-height: calc(100vh - 2 * var(--space-md));
+      max-height: calc(100dvh - 2 * var(--space-md));
       display: flex;
       flex-direction: column;
       background: var(--bg-card);
       border-radius: var(--radius);
-      box-shadow: var(--shadow-hover);
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.05);
       border: 1px solid var(--border-light);
       margin: auto;
+      overflow: hidden;
     }
     .modal-dialog--compact {
-      max-height: min(200px, 62dvh);
-      max-width: 320px;
+      max-height: min(220px, 62dvh);
+      max-width: 340px;
       margin: auto;
     }
     .modal-dialog--compact .modal-header {
-      padding: 0.2rem 0.35rem 0 0.35rem;
+      padding: var(--space-sm) var(--space-md);
       min-height: 0;
     }
     .modal-dialog--compact .modal-title {
-      font-size: 0.875rem;
+      font-size: 1rem;
       font-weight: 600;
     }
     .modal-dialog--compact .modal-close {
-      width: 28px;
-      height: 28px;
-    }
-    .modal-dialog--compact .modal-close-icon {
-      font-size: 1.2rem;
+      width: 32px;
+      height: 32px;
+      padding: 0;
     }
     .modal-dialog--compact .modal-body {
-      padding: 0.15rem 0.35rem 0.35rem;
+      padding: 0 var(--space-md) var(--space-md);
       overflow: visible;
     }
     @media (min-width: 600px) {
@@ -109,11 +112,8 @@ import { CommonModule } from '@angular/common';
         max-height: calc(100dvh - 2 * var(--space-lg));
       }
       .modal-dialog--compact {
-        max-height: min(220px, 62dvh);
-        max-width: 340px;
-      }
-      .modal-dialog--compact .modal-body {
-        padding: 0.25rem 0.4rem 0.4rem;
+        max-height: min(240px, 62dvh);
+        max-width: 360px;
       }
     }
     .modal-header {
@@ -121,27 +121,27 @@ import { CommonModule } from '@angular/common';
       align-items: center;
       justify-content: space-between;
       gap: var(--space-sm);
-      padding: var(--space-md) var(--space-md) 0;
+      padding: var(--space-lg) var(--space-lg) 0;
       flex-shrink: 0;
     }
     .modal-title {
       margin: 0;
-      font-size: 1.25rem;
+      font-size: 1.375rem;
       font-weight: 600;
-      letter-spacing: -0.02em;
+      letter-spacing: -0.025em;
       color: var(--text);
     }
     .modal-close {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: var(--touch-min);
-      height: var(--touch-min);
+      width: 40px;
+      height: 40px;
       padding: 0;
       border: none;
       background: none;
       cursor: pointer;
-      border-radius: var(--radius-sm);
+      border-radius: 12px;
       color: var(--text-secondary);
       -webkit-tap-highlight-color: transparent;
       transition: color 0.2s, background 0.2s;
@@ -150,24 +150,18 @@ import { CommonModule } from '@angular/common';
       color: var(--text);
       background: var(--border-light);
     }
-    .modal-close-icon {
-      font-size: 1.75rem;
-      line-height: 1;
-      font-weight: 300;
-    }
     .modal-body {
-      padding: var(--space-md);
+      padding: var(--space-lg);
       overflow-y: auto;
       flex: 1;
       min-height: 0;
     }
     @media (min-width: 600px) {
-      .modal-body { padding: var(--space-lg); }
+      .modal-body { padding: var(--space-xl); }
     }
-    /* Fullscreen unter Nav-Header (mobil): Header bleibt sichtbar */
     @media (max-width: 599px) {
       .modal-overlay--fullscreen-mobile {
-        top: var(--app-header-offset, calc(48px + env(safe-area-inset-top)));
+        top: var(--app-header-offset, calc(52px + env(safe-area-inset-top)));
         left: 0;
         right: 0;
         bottom: 0;
@@ -190,7 +184,7 @@ import { CommonModule } from '@angular/common';
         padding-right: var(--container-padding);
       }
       .modal-dialog--fullscreen-mobile .modal-body {
-        padding-bottom: calc(var(--space-md) + env(safe-area-inset-bottom));
+        padding-bottom: calc(var(--space-lg) + env(safe-area-inset-bottom));
       }
     }
   `],

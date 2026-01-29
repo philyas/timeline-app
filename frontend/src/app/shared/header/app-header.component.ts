@@ -10,7 +10,9 @@ import { UserMenuComponent } from '../user-menu/user-menu.component';
   template: `
     <header class="header">
       <div class="container header-inner">
-        <a routerLink="/" class="logo" (click)="closeMenu()">Timeline</a>
+        <a routerLink="/" class="logo" (click)="closeMenu()">
+          <span class="logo-text">Timeline</span>
+        </a>
         <button
           type="button"
           class="menu-btn"
@@ -44,27 +46,17 @@ import { UserMenuComponent } from '../user-menu/user-menu.component';
   `,
   styles: [`
     .header {
-      background: var(--bg-card);
-      border-bottom: 1px solid var(--border-light);
-      box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
       position: sticky;
       top: 0;
-      z-index: 20;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
     }
     @media (max-width: 599px) {
       .header { padding-top: env(safe-area-inset-top); }
-      .header-inner { min-height: 48px; }
-      .logo { font-size: 1.15rem; padding: 0.25rem 0; }
-    }
-    .header::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, var(--accent) 0%, var(--accent-hover) 100%);
-      opacity: 0.85;
+      .header-inner { min-height: 52px; }
     }
     .header-inner {
       display: flex;
@@ -74,37 +66,39 @@ import { UserMenuComponent } from '../user-menu/user-menu.component';
       position: relative;
     }
     .logo {
-      font-weight: 700;
-      font-size: 1.35rem;
-      letter-spacing: -0.03em;
-      color: var(--text);
       text-decoration: none;
       padding: 0.5rem 0;
       min-height: var(--touch-min);
       display: inline-flex;
       align-items: center;
       -webkit-tap-highlight-color: transparent;
-      transition: color 0.2s;
+      transition: opacity 0.2s;
     }
-    .logo:hover { text-decoration: none; color: var(--accent); }
+    .logo:hover { text-decoration: none; opacity: 0.8; }
+    .logo-text {
+      font-weight: 600;
+      font-size: 1.25rem;
+      letter-spacing: -0.03em;
+      color: var(--text);
+    }
 
     .menu-btn {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: var(--touch-min);
-      height: var(--touch-min);
+      width: 44px;
+      height: 44px;
       padding: 0;
       border: none;
       background: none;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
-      border-radius: var(--radius-sm);
+      border-radius: 12px;
       transition: background 0.2s;
     }
-    .menu-btn:hover { background: var(--accent-soft); }
+    .menu-btn:hover { background: rgba(0, 0, 0, 0.05); }
     .menu-icon {
-      width: 22px;
+      width: 20px;
       height: 2px;
       background: var(--text);
       position: relative;
@@ -115,13 +109,13 @@ import { UserMenuComponent } from '../user-menu/user-menu.component';
       content: '';
       position: absolute;
       left: 0;
-      width: 22px;
+      width: 20px;
       height: 2px;
       background: var(--text);
-      transition: transform 0.25s ease;
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .menu-icon::before { top: -7px; }
-    .menu-icon::after { top: 7px; }
+    .menu-icon::before { top: -6px; }
+    .menu-icon::after { top: 6px; }
     .menu-btn.open .menu-icon { background: transparent; }
     .menu-btn.open .menu-icon::before { top: 0; transform: rotate(45deg); }
     .menu-btn.open .menu-icon::after { top: 0; transform: rotate(-45deg); }
@@ -133,7 +127,7 @@ import { UserMenuComponent } from '../user-menu/user-menu.component';
     }
     .nav {
       display: flex;
-      gap: 0.25rem;
+      gap: 0.125rem;
       align-items: center;
     }
     .nav a {
@@ -141,25 +135,23 @@ import { UserMenuComponent } from '../user-menu/user-menu.component';
       text-decoration: none;
       font-size: 0.9375rem;
       font-weight: 500;
-      padding: 0.5rem 0.9rem;
-      min-height: var(--touch-min);
+      padding: 0.5rem 0.875rem;
+      min-height: 36px;
       display: flex;
       align-items: center;
-      border-radius: var(--radius-sm);
+      border-radius: 10px;
       -webkit-tap-highlight-color: transparent;
       transition: color 0.2s, background 0.2s;
     }
-    .nav a:hover, .nav a.active { color: var(--accent); background: var(--accent-soft); }
-    .nav a:hover { text-decoration: none; }
-    .nav a.active { font-weight: 600; }
+    .nav a:hover { color: var(--text); background: rgba(0, 0, 0, 0.04); text-decoration: none; }
+    .nav a.active { color: var(--accent); background: var(--accent-soft); font-weight: 600; }
 
-    .header-user {
-      flex-shrink: 0;
-    }
+    .header-user { flex-shrink: 0; }
+
     @media (max-width: 599px) {
       .nav-wrap { gap: 0; }
       .nav { gap: 0; }
-      .nav a { padding: 0.6rem 1rem; }
+      .nav a { padding: 0.75rem 1rem; min-height: 48px; border-radius: 12px; }
       .nav-wrap.open {
         display: flex;
         flex-direction: column;
@@ -169,11 +161,12 @@ import { UserMenuComponent } from '../user-menu/user-menu.component';
         left: var(--container-padding);
         right: var(--container-padding);
         margin-top: 0.5rem;
-        background: var(--bg-card);
+        background: rgba(255, 255, 255, 0.94);
+        backdrop-filter: blur(20px);
         border-radius: var(--radius);
-        box-shadow: var(--shadow-hover);
-        padding: 0.5rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
         border: 1px solid var(--border-light);
+        padding: 0.5rem;
       }
       .nav-wrap.open .header-user {
         margin-top: 0.5rem;
@@ -183,8 +176,9 @@ import { UserMenuComponent } from '../user-menu/user-menu.component';
       .nav-overlay {
         position: fixed;
         inset: 0;
-        background: rgba(0,0,0,0.15);
+        background: rgba(0, 0, 0, 0.2);
         z-index: -1;
+        backdrop-filter: blur(2px);
       }
     }
 

@@ -15,7 +15,11 @@ export class AuthService {
 
   readonly user = this.userSignal.asReadonly();
   readonly token = this.tokenSignal.asReadonly();
-  readonly isLoggedIn = computed(() => !!this.tokenSignal());
+  /** Nur true, wenn Token vorhanden und gültig (nicht abgelaufen). */
+  readonly isLoggedIn = computed(() => {
+    const t = this.tokenSignal();
+    return t ? !!this.decodeUser(t) : false;
+  });
 
   constructor(
     private http: HttpClient,
@@ -24,7 +28,11 @@ export class AuthService {
     const t = this.getStoredToken();
     if (t) {
       const u = this.decodeUser(t);
-      if (u) this.userSignal.set(u);
+      if (u) {
+        this.userSignal.set(u);
+      } else {
+        this.clearAuth();
+      }
     }
   }
 
