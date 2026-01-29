@@ -1,7 +1,8 @@
-import { Component, EventEmitter, Input, Output, ViewChild, ElementRef } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild, ElementRef, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../core/services/api.service';
+import type { Event as AppEvent } from '../../core/models/timeline.model';
 
 const SENTINEL_YEAR = 2000;
 
@@ -41,24 +42,26 @@ function pad(n: number): string {
         Als wichtiges Ereignis markieren
       </label>
 
-      <div class="images-optional">
-        <label class="label">Bilder (optional) – erstes = Hauptbild</label>
-        <input
-          type="file"
-          name="images"
-          #fileInput
-          accept=".jpg,.jpeg,.png,.gif,.webp"
-          multiple
-          (change)="onFilesSelected($event)"
-          class="file-input"
-        />
-        @if (selectedFiles.length) {
-          <p class="file-hint">{{ selectedFiles.length }} Bild(er) ausgewählt</p>
-        }
-      </div>
+      @if (!event) {
+        <div class="images-optional">
+          <label class="label">Bilder (optional) – erstes = Hauptbild</label>
+          <input
+            type="file"
+            name="images"
+            #fileInput
+            accept=".jpg,.jpeg,.png,.gif,.webp"
+            multiple
+            (change)="onFilesSelected($event)"
+            class="file-input"
+          />
+          @if (selectedFiles.length) {
+            <p class="file-hint">{{ selectedFiles.length }} Bild(er) ausgewählt</p>
+          }
+        </div>
+      }
 
       <div class="actions">
-        <button type="submit" [disabled]="!f.valid || saving">{{ saving ? 'Wird hinzugefügt…' : 'Hinzufügen' }}</button>
+        <button type="submit" [disabled]="!f.valid || saving">{{ submitLabel }}</button>
       </div>
     </form>
   `,
@@ -91,9 +94,12 @@ function pad(n: number): string {
     .actions { margin-top: 1rem; }
   `],
 })
-export class EventFormComponent {
+export class EventFormComponent implements OnChanges {
   @Input() timelineId!: number;
+  /** Bearbeiten-Modus: wenn gesetzt, Formular vorbelegen und beim Speichern updateEvent aufrufen. */
+  @Input() event: AppEvent | null = null;
   @Output() created = new EventEmitter<void>();
+  @Output() updated = new EventEmitter<void>();
   /** Wird emittiert, wenn Bilder im Hintergrund hochgeladen werden (Event ist bereits gespeichert). */
   @Output() imagesUploading = new EventEmitter<void>();
 
@@ -107,10 +113,40 @@ export class EventFormComponent {
   selectedFiles: File[] = [];
   @ViewChild('fileInput') fileInputRef?: ElementRef<HTMLInputElement>;
 
+  get submitLabel(): string {
+    if (this.saving) return this.event ? 'Wird gespeichert…' : 'Wird hinzugefügt…';
+    return this.event ? 'Speichern' : 'Hinzufügen';
+  }
+
   constructor(private api: ApiService) {}
 
-  onFilesSelected(e: Event): void {
-    const el = e.target as HTMLInputElement;
+  ngOnChanges(changes: SimpleChanges): void {
+    const ev = changes['event'];
+    if (!ev) return;
+    const e = ev.currentValue as AppEvent | null;
+    if (e) {
+      this.title = e.title;
+      this.year = e.year;
+      this.month = e.month ?? null;
+      this.day = e.day ?? null;
+      this.description = e.description ?? '';
+      this.isImportant = e.isImportant ?? false;
+      this.selectedFiles = [];
+      const input = this.fileInputRef?.nativeElement;
+      if (input) input.value = '';
+    } else {
+      this.title = '';
+      this.year = null;
+      this.month = null;
+      this.day = null;
+      this.description = '';
+      this.isImportant = false;
+      this.selectedFiles = [];
+    }
+  }
+
+  onFilesSelected(e: globalThis.Event): void {
+    const el = (e.target as HTMLInputElement) ?? null;
     const list = el?.files;
     this.selectedFiles = list ? Array.from(list) : [];
   }
@@ -123,8 +159,8 @@ export class EventFormComponent {
     return `${y}-${pad(m)}-${pad(d)}`;
   }
 
-  onDateInput(e: Event): void {
-    const el = e.target as HTMLInputElement;
+  onDateInput(e: globalThis.Event): void {
+    const el = (e.target as HTMLInputElement) ?? null;
     const v = (el?.value ?? '').trim();
     if (!v) {
       this.month = null;
@@ -144,16 +180,34 @@ export class EventFormComponent {
   onSubmit(): void {
     if (this.year === null || !this.title.trim() || this.saving) return;
     this.saving = true;
+    const payload = {
+      title: this.title.trim(),
+      year: this.year,
+      month: this.month ?? undefined,
+      day: this.day ?? undefined,
+      description: this.description.trim() || undefined,
+      isImportant: this.isImportant,
+    };
+
+    if (this.event) {
+      this.api.updateEvent(this.event.id, payload).subscribe({
+        next: () => {
+          this.saving = false;
+          this.updated.emit();
+        },
+        error: (err) => {
+          this.saving = false;
+          console.error(err?.error?.error || 'Ereignis konnte nicht gespeichert werden.');
+        },
+      });
+      return;
+    }
+
     const files = [...this.selectedFiles];
     this.api
       .createEvent({
         timelineId: this.timelineId,
-        title: this.title.trim(),
-        year: this.year,
-        month: this.month ?? undefined,
-        day: this.day ?? undefined,
-        description: this.description.trim() || undefined,
-        isImportant: this.isImportant,
+        ...payload,
       })
       .subscribe({
         next: (event) => {

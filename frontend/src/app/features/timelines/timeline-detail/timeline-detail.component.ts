@@ -109,6 +109,12 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
                     </div>
                     @if (selectedEvent?.id === ev.id) {
                       <div class="event-actions">
+                        <button type="button" class="action-btn" (click)="openEditModal(ev); $event.stopPropagation()" title="Bearbeiten">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                          </svg>
+                        </button>
                         <button type="button" class="action-btn" [class.active]="ev.isImportant" (click)="toggleImportant(ev); $event.stopPropagation()">
                           <svg width="16" height="16" viewBox="0 0 24 24" [attr.fill]="ev.isImportant ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2">
                             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
@@ -161,6 +167,15 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
           (imagesUploading)="showImagesUploadingBanner()"
         />
       </app-modal>
+      @if (editModalEvent) {
+        <app-modal [isOpen]="true" title="Ereignis bearbeiten" (closed)="closeEditModal()">
+          <app-event-form
+            [timelineId]="timeline.id"
+            [event]="editModalEvent"
+            (updated)="onEventUpdatedAndClose()"
+          />
+        </app-modal>
+      }
     }
 
     @if (photosModalEvent) {
@@ -710,6 +725,7 @@ export class TimelineDetailComponent implements OnInit, AfterViewInit, OnDestroy
   loading = true;
   error: string | null = null;
   modalOpen = false;
+  editModalEvent: Event | null = null;
   photosModalEvent: Event | null = null;
   imagesUploadingBanner = false;
   selectedEvent: Event | null = null;
@@ -1009,12 +1025,25 @@ export class TimelineDetailComponent implements OnInit, AfterViewInit, OnDestroy
     this.modalOpen = false;
   }
 
+  openEditModal(ev: Event): void {
+    this.editModalEvent = ev;
+  }
+
+  closeEditModal(): void {
+    this.editModalEvent = null;
+  }
+
   onEventCreated(): void {
     if (this.timeline) this.load(this.timeline.slug);
   }
 
   onEventCreatedAndClose(): void {
     this.closeModal();
+    this.onEventCreated();
+  }
+
+  onEventUpdatedAndClose(): void {
+    this.closeEditModal();
     this.onEventCreated();
   }
 
