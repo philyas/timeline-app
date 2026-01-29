@@ -38,32 +38,30 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
         <div class="timeline-visual" [style.--timeline-color]="timeline.color || '#0d6b5c'">
           @for (ev of events; track ev.id) {
             <div class="event-row" [class.important]="ev.isImportant">
-              <div class="event-date">
-                <span class="date-label">{{ formatDate(ev) }}</span>
-                @if (getPositionInYear(ev) !== null) {
-                  <div class="year-bar" title="Position im Jahr">
-                    <span class="year-marker" [style.left.%]="getPositionInYear(ev) ?? 0"></span>
-                  </div>
-                }
-              </div>
-              <div class="event-content">
-                <div class="event-main">
-                  <div class="event-text">
-                    <h3>{{ ev.title }}</h3>
-                    @if (ev.description) {
-                      <p>{{ ev.description }}</p>
+              <span class="year-badge">{{ formatYear(ev) }}</span>
+              <div class="event-body">
+                <div class="event-content">
+                  <div class="event-main">
+                    <div class="event-text">
+                      <h3>{{ ev.title }}</h3>
+                      @if (ev.month) {
+                        <span class="date-detail">{{ formatDate(ev) }}</span>
+                      }
+                      @if (ev.description) {
+                        <p>{{ ev.description }}</p>
+                      }
+                    </div>
+                    @if (getMainImage(ev); as img) {
+                      <img [src]="imageSrc(img.url)" [alt]="ev.title" class="event-thumb" loading="lazy" />
                     }
                   </div>
-                  @if (getMainImage(ev); as img) {
-                    <img [src]="imageSrc(img.url)" [alt]="ev.title" class="event-thumb" loading="lazy" />
-                  }
-                </div>
-                <div class="actions-inline">
-                  <button type="button" class="btn-small" [class.btn-important]="ev.isImportant" (click)="toggleImportant(ev)">
-                    {{ ev.isImportant ? '★ Wichtig' : '☆ Als wichtig markieren' }}
-                  </button>
-                  <button type="button" class="btn-small btn-secondary" (click)="openPhotosModal(ev)">Fotos</button>
-                  <button type="button" class="btn-small btn-secondary" (click)="deleteEvent(ev)">Löschen</button>
+                  <div class="actions-inline">
+                    <button type="button" class="btn-small" [class.btn-important]="ev.isImportant" (click)="toggleImportant(ev)">
+                      {{ ev.isImportant ? '★ Wichtig' : '☆ Als wichtig markieren' }}
+                    </button>
+                    <button type="button" class="btn-small btn-secondary" (click)="openPhotosModal(ev)">Fotos</button>
+                    <button type="button" class="btn-small btn-secondary" (click)="deleteEvent(ev)">Löschen</button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -141,61 +139,78 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
     .desc { color: var(--text-secondary); margin: 0.35rem 0 0 0; font-size: 0.9375rem; line-height: 1.5; }
     .timeline-visual {
       margin-bottom: var(--space-xl);
-      border-left: 3px solid var(--timeline-color);
-      margin-left: 5px;
+      margin-left: 2.5rem;
       padding-left: var(--space-md);
+      position: relative;
+    }
+    .timeline-visual::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--timeline-color);
+      z-index: 0;
     }
     @media (min-width: 480px) {
-      .timeline-visual { margin-left: 6px; padding-left: var(--space-lg); }
+      .timeline-visual { margin-left: 3rem; padding-left: var(--space-lg); }
     }
     .event-row {
       padding: var(--space-md) 0;
       border-bottom: 1px solid var(--border-light);
       position: relative;
-    }
-    .event-row::before {
-      content: '';
-      position: absolute;
-      left: calc(-1 * var(--space-md) - 5px);
-      top: 1.35rem;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: var(--bg-card);
-      border: 2px solid var(--timeline-color);
-      box-sizing: border-box;
+      z-index: 1;
     }
     .event-row:last-child { border-bottom: none; }
-    .event-row.important .date-label { font-weight: 600; color: var(--accent); }
-    .event-row.important::before { background: var(--timeline-color); }
-    .event-date {
-      font-size: 0.8125rem;
+    .year-badge {
+      position: absolute;
+      left: calc(-1 * var(--space-md) - 3px);
+      top: calc(var(--space-md) + 0.1rem);
+      transform: translateX(-100%);
+      z-index: 2;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.3rem 0.6rem;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      color: var(--timeline-color);
+      background: color-mix(in srgb, var(--timeline-color) 12%, var(--bg-card));
+      border-radius: 6px;
+      white-space: nowrap;
+      letter-spacing: 0.02em;
+    }
+    .year-badge::after {
+      content: '';
+      position: absolute;
+      right: -6px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: color-mix(in srgb, var(--bg) 55%, black);
+    }
+    .event-row.important .year-badge {
+      color: var(--accent);
+      background: var(--important-soft);
+    }
+    .event-row.important .year-badge::after {
+      background: color-mix(in srgb, var(--important) 65%, black);
+    }
+    .event-body { }
+    .event-content h3 { margin: 0; font-size: 1.125rem; font-weight: 600; letter-spacing: -0.02em; }
+    .date-detail {
+      display: block;
+      font-size: 0.75rem;
       font-weight: 500;
       color: var(--text-secondary);
-      margin-bottom: 0.35rem;
+      margin-top: 0.15rem;
+      margin-bottom: 0.25rem;
     }
-    .date-label { display: block; margin-bottom: 0.25rem; }
-    .year-bar {
-      position: relative;
-      width: 100%;
-      max-width: 140px;
-      height: 6px;
-      background: var(--border);
-      border-radius: 3px;
-      overflow: visible;
-    }
-    .year-marker {
-      position: absolute;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: var(--timeline-color);
-      box-shadow: 0 0 0 2px var(--bg);
-    }
-    .event-content h3 { margin: 0 0 0.3rem 0; font-size: 1.125rem; font-weight: 600; letter-spacing: -0.02em; }
-    .event-content p { margin: 0 0 0.5rem 0; font-size: 0.9375rem; color: var(--text-secondary); line-height: 1.5; }
+    .event-row.important .date-detail { color: var(--accent); }
+    .event-content p { margin: 0.25rem 0 0.5rem 0; font-size: 0.9375rem; color: var(--text-secondary); line-height: 1.5; }
     .actions-inline {
       display: flex;
       gap: 0.5rem;
@@ -223,16 +238,16 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
     }
     .event-main {
       display: flex;
-      gap: var(--space-md);
+      gap: var(--space-sm);
       align-items: flex-start;
     }
     .event-text { flex: 1; min-width: 0; }
     .event-thumb {
       width: 100%;
-      max-width: 120px;
+      max-width: 100px;
       aspect-ratio: 4/3;
       object-fit: cover;
-      border-radius: var(--radius-sm);
+      border-radius: 6px;
       flex-shrink: 0;
     }
   `],
@@ -288,6 +303,10 @@ export class TimelineDetailComponent implements OnInit {
     return (ev.year < 0 ? Math.abs(ev.year) + ' v. Chr.' : ev.year + ' n. Chr.');
   }
 
+  formatYear(ev: Event): string {
+    return ev.year < 0 ? Math.abs(ev.year) + ' v. Chr.' : String(ev.year);
+  }
+
   getMainImage(ev: Event): EventImage | null {
     const imgs = ev.images ?? [];
     const main = imgs.find((i) => i.isMain);
@@ -296,16 +315,6 @@ export class TimelineDetailComponent implements OnInit {
 
   imageSrc(url: string): string {
     return this.api.getImageUrl(url);
-  }
-
-  /** Position im Jahr 0–100 % (nur wenn Monat gesetzt), sonst null */
-  getPositionInYear(ev: Event): number | null {
-    if (ev.month == null || ev.month < 1 || ev.month > 12) return null;
-    const day = ev.day != null && ev.day >= 1 && ev.day <= 31 ? ev.day : 15;
-    const daysInMonth = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][ev.month - 1];
-    const dayFraction = Math.min(1, (day - 1) / daysInMonth);
-    const monthFraction = (ev.month - 1 + dayFraction) / 12;
-    return Math.min(100, Math.max(0, monthFraction * 100));
   }
 
   openModal(): void {
