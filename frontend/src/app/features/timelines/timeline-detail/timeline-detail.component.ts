@@ -29,8 +29,8 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
                 <p>{{ timeline.description }}</p>
               }
             </div>
-            <button type="button" class="header-action" (click)="deleteTimeline()" aria-label="Zeitlinie löschen">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <button type="button" class="header-action header-action--delete" (click)="deleteTimeline()" aria-label="Zeitlinie löschen" title="Zeitlinie löschen">
+              <svg class="header-action-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
               </svg>
             </button>
@@ -110,6 +110,12 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
                     </div>
                     @if (selectedEvent?.id === ev.id) {
                       <div class="event-actions">
+                        <button type="button" class="action-btn" (click)="openDetailModal(ev); $event.stopPropagation()" title="Details ansehen">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                          </svg>
+                        </button>
                         <button type="button" class="action-btn" (click)="openEditModal(ev); $event.stopPropagation()" title="Bearbeiten">
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
@@ -119,18 +125,6 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
                         <button type="button" class="action-btn" [class.active]="ev.isImportant" (click)="toggleImportant(ev); $event.stopPropagation()">
                           <svg width="16" height="16" viewBox="0 0 24 24" [attr.fill]="ev.isImportant ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2">
                             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                          </svg>
-                        </button>
-                        <button type="button" class="action-btn" (click)="openPhotosModal(ev); $event.stopPropagation()">
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                            <circle cx="8.5" cy="8.5" r="1.5"/>
-                            <polyline points="21 15 16 10 5 21"/>
-                          </svg>
-                        </button>
-                        <button type="button" class="action-btn delete" (click)="deleteEvent(ev); $event.stopPropagation()">
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
                           </svg>
                         </button>
                       </div>
@@ -177,6 +171,36 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
           />
         </app-modal>
       }
+    }
+
+    @if (detailModalEvent) {
+      <app-modal [isOpen]="true" [title]="detailModalEvent.title" (closed)="closeDetailModal()">
+        <div class="event-detail-modal">
+          <p class="event-detail-date">{{ formatDate(detailModalEvent) }}</p>
+          @if (detailModalEvent.description) {
+            <p class="event-detail-desc">{{ detailModalEvent.description }}</p>
+          }
+          @if (detailModalEvent.images && detailModalEvent.images.length > 0) {
+            <div class="event-detail-photos">
+              <h3 class="event-detail-photos-title">Fotos</h3>
+              <div class="event-detail-thumbs">
+                @for (img of detailModalEvent.images; track img.id; let i = $index) {
+                  <button type="button" class="event-detail-thumb" (click)="openImageGalleryFromDetail(detailModalEvent, i)" [attr.aria-label]="'Bild ' + (i + 1) + ' vergrößern'">
+                    <img [src]="imageSrc(img.url)" [alt]="detailModalEvent.title" loading="lazy" />
+                  </button>
+                }
+              </div>
+              <button type="button" class="btn btn-secondary event-detail-manage-photos" (click)="openPhotosFromDetail()">Fotos verwalten</button>
+            </div>
+          } @else {
+            <p class="event-detail-no-photos muted">Keine Fotos.</p>
+            <button type="button" class="btn btn-secondary" (click)="openPhotosFromDetail()">Fotos hinzufügen</button>
+          }
+          <div class="event-detail-actions">
+            <button type="button" class="btn btn-danger" (click)="deleteEventFromDetail()">Ereignis löschen</button>
+          </div>
+        </div>
+      </app-modal>
     }
 
     @if (photosModalEvent) {
@@ -270,18 +294,33 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
       justify-content: center;
       width: 36px;
       height: 36px;
-      border-radius: 50%;
-      background: transparent;
-      color: var(--text-secondary);
+      min-width: 36px;
+      min-height: 36px;
+      border-radius: 8px;
       border: none;
       cursor: pointer;
       transition: all 0.2s;
       flex-shrink: 0;
       box-shadow: none;
+      -webkit-tap-highlight-color: transparent;
     }
-    .header-action:hover {
-      background: rgba(185, 28, 28, 0.08);
+    .header-action-icon {
+      display: block;
+      flex-shrink: 0;
+    }
+    .header-action--delete {
+      background: transparent;
       color: #b91c1c;
+    }
+    .header-action--delete .header-action-icon {
+      stroke: #b91c1c;
+    }
+    .header-action--delete:hover {
+      background: rgba(185, 28, 28, 0.1);
+      color: #991b1b;
+    }
+    .header-action--delete:hover .header-action-icon {
+      stroke: #991b1b;
     }
 
     /* Loading & Error States */
@@ -632,12 +671,14 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
     /* Event Actions – kompakt */
     .event-actions {
       display: flex;
+      flex-wrap: wrap;
       gap: 0.5rem;
       padding: 0.5rem 0.75rem;
       border-top: 1px solid var(--border-light);
     }
     .action-btn {
-      flex: 1;
+      flex: 1 1 0;
+      min-width: 32px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -663,6 +704,17 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
     .action-btn.delete:hover {
       background: rgba(185, 28, 28, 0.1);
       color: #b91c1c;
+    }
+    @media (max-width: 599px) {
+      .event-actions {
+        gap: 0.35rem;
+        padding: 0.4rem 0.5rem;
+      }
+      .action-btn {
+        flex: 0 0 calc(33.333% - 0.25rem);
+        min-width: 0;
+        height: 32px;
+      }
     }
 
     /* Add Event Button */
@@ -733,6 +785,80 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
     @keyframes fadeOut {
       to { opacity: 0; }
     }
+
+    /* Event Detail Modal */
+    .event-detail-modal {
+      padding: 0;
+    }
+    .event-detail-date {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--timeline-color, #0071e3);
+      margin: 0 0 0.75rem 0;
+    }
+    .event-detail-desc {
+      font-size: 0.9375rem;
+      line-height: 1.5;
+      color: var(--text-secondary);
+      margin: 0 0 1.25rem 0;
+      white-space: pre-wrap;
+    }
+    .event-detail-photos-title {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin: 0 0 0.5rem 0;
+    }
+    .event-detail-photos {
+      margin-top: 1rem;
+    }
+    .event-detail-thumbs {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .event-detail-thumb {
+      display: block;
+      width: 100%;
+      aspect-ratio: 1;
+      padding: 0;
+      border: none;
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      background: var(--border-light);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .event-detail-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .event-detail-thumb:hover {
+      opacity: 0.9;
+    }
+    .event-detail-manage-photos {
+      margin-top: 0.25rem;
+    }
+    .event-detail-no-photos {
+      margin: 0 0 0.75rem 0;
+    }
+    .event-detail-actions {
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-light);
+    }
+    .event-detail-actions .btn-danger {
+      background: transparent;
+      color: #b91c1c;
+      border: 1px solid rgba(185, 28, 28, 0.4);
+    }
+    .event-detail-actions .btn-danger:hover {
+      background: rgba(185, 28, 28, 0.08);
+      border-color: #b91c1c;
+    }
   `],
 })
 export class TimelineDetailComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -745,6 +871,7 @@ export class TimelineDetailComponent implements OnInit, AfterViewInit, OnDestroy
   error: string | null = null;
   modalOpen = false;
   editModalEvent: Event | null = null;
+  detailModalEvent: Event | null = null;
   photosModalEvent: Event | null = null;
   galleryEvent: Event | null = null;
   galleryIndex = 0;
@@ -1044,6 +1171,41 @@ export class TimelineDetailComponent implements OnInit, AfterViewInit, OnDestroy
 
   closeModal(): void {
     this.modalOpen = false;
+  }
+
+  openDetailModal(ev: Event): void {
+    this.detailModalEvent = ev;
+  }
+
+  closeDetailModal(): void {
+    this.detailModalEvent = null;
+  }
+
+  openImageGalleryFromDetail(ev: Event, index: number): void {
+    this.closeDetailModal();
+    this.galleryIndex = index;
+    this.galleryEvent = ev;
+  }
+
+  openPhotosFromDetail(): void {
+    if (!this.detailModalEvent) return;
+    const ev = this.detailModalEvent;
+    this.closeDetailModal();
+    this.photosModalEvent = ev;
+  }
+
+  deleteEventFromDetail(): void {
+    if (!this.detailModalEvent) return;
+    const ev = this.detailModalEvent;
+    if (!confirm(`„${ev.title}" wirklich löschen?`)) return;
+    this.api.deleteEvent(ev.id).subscribe({
+      next: () => {
+        this.closeDetailModal();
+        this.selectedEvent = null;
+        this.onEventCreated();
+      },
+      error: (e) => console.error(e),
+    });
   }
 
   openEditModal(ev: Event): void {
