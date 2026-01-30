@@ -49,10 +49,10 @@ import { UserMenuComponent } from '../user-menu/user-menu.component';
       position: sticky;
       top: 0;
       z-index: 100;
-      background: rgba(255, 255, 255, 0.72);
+      background: rgba(251, 251, 253, 0.8);
       backdrop-filter: blur(20px) saturate(180%);
       -webkit-backdrop-filter: blur(20px) saturate(180%);
-      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.04);
     }
     @media (max-width: 599px) {
       .header { padding-top: env(safe-area-inset-top); }
@@ -144,7 +144,7 @@ import { UserMenuComponent } from '../user-menu/user-menu.component';
       transition: color 0.2s, background 0.2s;
     }
     .nav a:hover { color: var(--text); background: rgba(0, 0, 0, 0.04); text-decoration: none; }
-    .nav a.active { color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+    .nav a.active { color: var(--link); background: var(--accent-soft); font-weight: 600; }
 
     .header-user { flex-shrink: 0; }
 

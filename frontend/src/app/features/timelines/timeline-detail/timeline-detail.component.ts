@@ -13,7 +13,7 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
   standalone: true,
   imports: [CommonModule, RouterLink, EventFormComponent, EventPhotosComponent, ImageGalleryModalComponent, ModalComponent],
   template: `
-    <div class="timeline-page" [style.--timeline-color]="timeline?.color || '#0d6b5c'">
+    <div class="timeline-page" [style.--timeline-color]="timeline?.color || '#0071e3'">
       <!-- Header -->
       <header class="timeline-header">
         <div class="header-content">
@@ -416,7 +416,7 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
       background: var(--timeline-color);
       color: white;
       transform: scale(1.05);
-      box-shadow: 0 8px 24px rgba(13, 107, 92, 0.25);
+      box-shadow: 0 8px 24px rgba(0, 113, 227, 0.25);
     }
     .add-first-btn .add-icon {
       line-height: 1;
@@ -568,7 +568,7 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
       transform: scale(1.02);
     }
     .event-card.selected {
-      box-shadow: 0 8px 24px rgba(13, 107, 92, 0.2), 0 0 0 2px var(--timeline-color);
+      box-shadow: 0 8px 24px rgba(0, 113, 227, 0.2), 0 0 0 2px var(--timeline-color);
     }
     .event-node.important .event-card.selected {
       box-shadow: 0 8px 24px rgba(91, 95, 199, 0.2), 0 0 0 2px var(--important);
@@ -697,7 +697,7 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
       background: var(--timeline-color);
       color: white;
       transform: translate(-50%, -50%) scale(1.1);
-      box-shadow: 0 4px 16px rgba(13, 107, 92, 0.3);
+      box-shadow: 0 4px 16px rgba(0, 113, 227, 0.3);
     }
 
     /* Scroll Hint */

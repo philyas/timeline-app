@@ -43,7 +43,7 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
             @for (t of timelines; track t.id) {
               <div
                 class="timeline-card"
-                [style.--timeline-color]="t.color || '#0d6b5c'"
+                [style.--timeline-color]="t.color || '#0071e3'"
                 (click)="goToTimeline(t.slug)"
                 (keydown.enter)="goToTimeline(t.slug)"
                 role="link"
@@ -89,7 +89,7 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
   `,
   styles: [`
     .page-timelines {
-      padding: var(--space-md) 0 var(--space-2xl);
+      padding: var(--space-2xl) 0 var(--space-3xl);
     }
     .page-hero {
       margin-bottom: var(--space-2xl);
@@ -97,10 +97,14 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
     }
     .page-hero h1 {
       margin-bottom: 0.5rem;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 600;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
     }
     .page-hero .subtitle {
       color: var(--text-secondary);
-      font-size: 1.0625rem;
+      font-size: clamp(1rem, 2vw, 1.25rem);
       line-height: 1.5;
       margin: 0;
       max-width: 42ch;
@@ -188,7 +192,7 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
       overflow: hidden;
     }
     .timeline-card:hover, .timeline-card:focus-visible {
-      transform: translateY(-4px);
+      transform: translateY(-2px);
       box-shadow: var(--shadow-hover);
       border-color: var(--border);
     }

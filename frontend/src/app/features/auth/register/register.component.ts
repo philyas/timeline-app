@@ -60,7 +60,7 @@ import { AuthService } from '../../../core/services/auth.service';
     }
     .auth-container { width: 100%; max-width: 420px; }
     .auth-card {
-      background: rgba(255, 255, 255, 0.8);
+      background: rgba(251, 251, 253, 0.95);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border-radius: var(--radius);
