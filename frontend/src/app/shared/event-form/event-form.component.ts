@@ -66,46 +66,82 @@ function pad(n: number): string {
     </form>
   `,
   styles: [`
-    :host { display: block; box-sizing: border-box; width: 100%; min-width: 0; }
-    form { width: 100%; min-width: 0; box-sizing: border-box; }
+    :host { display: block; box-sizing: border-box; width: 100%; min-width: 0; overflow-x: hidden; }
+    form { width: 100%; min-width: 0; box-sizing: border-box; overflow-x: hidden; }
     label { display: block; }
-    .label { font-size: 0.8125rem; font-weight: 500; color: var(--text-secondary); margin-bottom: 0.25rem; }
+    .label { font-size: 0.75rem; font-weight: 500; color: var(--text-secondary); margin-bottom: 0.2rem; }
     input, textarea {
-      margin-bottom: 0.65rem;
+      margin-bottom: 0.5rem;
       box-sizing: border-box;
       max-width: 100%;
+      font-size: 0.9375rem;
     }
     .checkbox-label {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
-      margin-bottom: 0.65rem;
-      font-size: 0.9375rem;
-      min-height: var(--touch-min);
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+      min-height: 36px;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
     }
-    .checkbox-label input { width: 1.25rem; height: 1.25rem; margin: 0; flex-shrink: 0; }
+    .checkbox-label input { width: 1.1rem; height: 1.1rem; margin: 0; flex-shrink: 0; }
     .date-optional {
-      margin-bottom: 0.35rem;
+      margin-bottom: 0.3rem;
       width: 100%;
       min-width: 0;
       max-width: 100%;
       overflow: hidden;
       box-sizing: border-box;
     }
-    .date-optional .label { margin-bottom: 0.25rem; }
+    .date-optional .label { margin-bottom: 0.2rem; }
     .date-input {
+      display: block;
       width: 100%;
       max-width: 100%;
       min-width: 0;
       box-sizing: border-box;
     }
-    .images-optional { margin-bottom: 0.65rem; }
-    .images-optional .label { margin-bottom: 0.25rem; }
-    .file-input { display: block; margin-bottom: 0.35rem; font-size: 0.9375rem; max-width: 100%; }
-    .file-hint { margin: 0; font-size: 0.8125rem; color: var(--text-muted); }
-    .actions { margin-top: 0.75rem; }
+    /* Safari: width: 100% wird bei type=date nur mit display: block respektiert; Padding-Reset verhindert extra Abstand */
+    .date-input::-webkit-datetime-edit,
+    .date-input::-webkit-datetime-edit-fields-wrapper,
+    .date-input::-webkit-datetime-edit-text,
+    .date-input::-webkit-datetime-edit-day-field,
+    .date-input::-webkit-datetime-edit-month-field,
+    .date-input::-webkit-datetime-edit-year-field {
+      padding: 0;
+    }
+    .date-input::-webkit-date-and-time-value { min-height: 1.5em; }
+    .images-optional { margin-bottom: 0.5rem; }
+    .images-optional .label { margin-bottom: 0.2rem; }
+    .file-input { display: block; margin-bottom: 0.3rem; font-size: 0.875rem; max-width: 100%; }
+    .file-hint { margin: 0; font-size: 0.75rem; color: var(--text-muted); }
+    .actions { margin-top: 0.5rem; }
+    .actions button { padding: 0.5rem 1rem; font-size: 0.875rem; }
+    @media (max-width: 600px) {
+      .label { font-size: 0.7rem; margin-bottom: 0.15rem; }
+      input, textarea { margin-bottom: 0.4rem; font-size: 16px; }
+      input::placeholder, textarea::placeholder { font-size: 0.8125rem; }
+      .checkbox-label { margin-bottom: 0.35rem; font-size: 0.8125rem; min-height: 32px; }
+      .checkbox-label input { width: 1rem; height: 1rem; }
+      .date-optional { margin-bottom: 0.25rem; }
+      .images-optional { margin-bottom: 0.35rem; }
+      .file-input { font-size: 0.8125rem; margin-bottom: 0.25rem; }
+      .file-hint { font-size: 0.7rem; }
+      .actions { margin-top: 0.4rem; }
+      .actions button { padding: 0.4rem 0.85rem; font-size: 0.8125rem; }
+    }
+    @media (max-height: 660px), (max-width: 380px) {
+      .label { font-size: 0.6875rem; margin-bottom: 0.1rem; }
+      input, textarea { margin-bottom: 0.3rem; font-size: 16px; }
+      .checkbox-label { margin-bottom: 0.3rem; font-size: 0.75rem; min-height: 28px; }
+      .checkbox-label input { width: 0.95rem; height: 0.95rem; }
+      .date-optional { margin-bottom: 0.2rem; }
+      .images-optional { margin-bottom: 0.3rem; }
+      .actions { margin-top: 0.3rem; }
+      .actions button { padding: 0.35rem 0.75rem; font-size: 0.75rem; }
+    }
   `],
 })
 export class EventFormComponent implements OnChanges {

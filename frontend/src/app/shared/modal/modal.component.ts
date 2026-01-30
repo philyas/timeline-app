@@ -60,10 +60,50 @@ import { CommonModule } from '@angular/common';
       -webkit-backdrop-filter: blur(8px);
     }
     .modal-overlay--compact {
-      padding: var(--space-sm);
-      padding-left: calc(var(--space-sm) + env(safe-area-inset-left));
-      padding-right: calc(var(--space-sm) + env(safe-area-inset-right));
-      padding-bottom: calc(var(--space-sm) + env(safe-area-inset-bottom));
+      padding: var(--space-xs);
+      padding-left: calc(var(--space-xs) + env(safe-area-inset-left));
+      padding-right: calc(var(--space-xs) + env(safe-area-inset-right));
+      padding-bottom: calc(var(--space-xs) + env(safe-area-inset-bottom));
+    }
+    @media (max-width: 600px) {
+      .modal-dialog--compact {
+        max-height: 96dvh;
+        max-width: min(340px, calc(100vw - 2 * var(--space-xs)));
+      }
+      .modal-dialog--compact .modal-header {
+        padding: var(--space-xs) var(--space-sm);
+      }
+      .modal-dialog--compact .modal-title {
+        font-size: 0.9375rem;
+      }
+      .modal-dialog--compact .modal-close {
+        width: 28px;
+        height: 28px;
+      }
+      .modal-dialog--compact .modal-body {
+        padding: 0 var(--space-sm) var(--space-sm);
+      }
+    }
+    @media (max-height: 660px), (max-width: 380px) {
+      .modal-overlay--compact {
+        padding: 0.375rem;
+        padding-left: calc(0.375rem + env(safe-area-inset-left));
+        padding-right: calc(0.375rem + env(safe-area-inset-right));
+        padding-bottom: calc(0.375rem + env(safe-area-inset-bottom));
+      }
+      .modal-dialog--compact .modal-header {
+        padding: 0.375rem var(--space-xs);
+      }
+      .modal-dialog--compact .modal-title {
+        font-size: 0.875rem;
+      }
+      .modal-dialog--compact .modal-close {
+        width: 26px;
+        height: 26px;
+      }
+      .modal-dialog--compact .modal-body {
+        padding: 0 var(--space-xs) var(--space-xs);
+      }
     }
     .modal-overlay:not(.modal-overlay--compact) {
       overflow-y: auto;
@@ -85,27 +125,28 @@ import { CommonModule } from '@angular/common';
       box-sizing: border-box;
     }
     .modal-dialog--compact {
-      max-height: min(720px, 92dvh);
-      max-width: min(380px, calc(100vw - 2 * var(--space-md)));
+      max-height: min(680px, 90dvh);
+      max-width: min(360px, calc(100vw - 2 * var(--space-sm)));
       min-width: 0;
       margin: auto;
     }
     .modal-dialog--compact .modal-header {
-      padding: var(--space-sm) var(--space-md);
+      padding: var(--space-xs) var(--space-sm);
       min-height: 0;
     }
     .modal-dialog--compact .modal-title {
-      font-size: 1rem;
+      font-size: 0.9375rem;
       font-weight: 600;
     }
     .modal-dialog--compact .modal-close {
-      width: 32px;
-      height: 32px;
+      width: 30px;
+      height: 30px;
       padding: 0;
     }
     .modal-dialog--compact .modal-body {
-      padding: 0 var(--space-md) var(--space-md);
+      padding: 0 var(--space-sm) var(--space-sm);
       overflow: visible;
+      overflow-x: hidden;
       min-height: 0;
     }
     @media (min-width: 600px) {
@@ -115,8 +156,8 @@ import { CommonModule } from '@angular/common';
         max-height: calc(100dvh - 2 * var(--space-lg));
       }
       .modal-dialog--compact {
-        max-height: min(740px, 90dvh);
-        max-width: 400px;
+        max-height: min(700px, 88dvh);
+        max-width: 380px;
       }
     }
     .modal-header {
