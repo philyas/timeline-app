@@ -7,13 +7,11 @@ import {
   viewChild,
 } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
-import { ChangePasswordComponent } from '../../features/auth/change-password/change-password.component';
-import { ModalComponent } from '../modal/modal.component';
 
 @Component({
   selector: 'app-user-menu',
   standalone: true,
-  imports: [ModalComponent, ChangePasswordComponent],
+  imports: [],
   template: `
     @if (inlineMode) {
       <div class="user-inline">
@@ -61,16 +59,6 @@ import { ModalComponent } from '../modal/modal.component';
         }
       </div>
     }
-    <app-modal
-      [isOpen]="changePasswordModalOpen"
-      [compact]="true"
-      title="Passwort ändern"
-      (closed)="closeChangePasswordModal()"
-    >
-      @if (changePasswordModalOpen) {
-        <app-change-password [modalMode]="true" (closed)="closeChangePasswordModal()" />
-      }
-    </app-modal>
   `,
   styles: [`
     .user-menu {
@@ -214,8 +202,7 @@ export class UserMenuComponent {
   open = false;
 
   readonly menuAction = output<void>();
-
-  changePasswordModalOpen = false;
+  readonly openChangePassword = output<void>();
 
   constructor(protected auth: AuthService) {}
 
@@ -239,12 +226,8 @@ export class UserMenuComponent {
 
   openChangePasswordModal(): void {
     this.close();
-    this.changePasswordModalOpen = true;
     this.menuAction.emit();
-  }
-
-  closeChangePasswordModal(): void {
-    this.changePasswordModalOpen = false;
+    this.openChangePassword.emit();
   }
 
   onLogout(): void {

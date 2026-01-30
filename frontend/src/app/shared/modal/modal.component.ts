@@ -47,7 +47,7 @@ import { CommonModule } from '@angular/common';
     .modal-overlay {
       position: fixed;
       inset: 0;
-      z-index: 100;
+      z-index: 300;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -71,8 +71,8 @@ import { CommonModule } from '@angular/common';
     }
     .modal-dialog {
       width: 100%;
-      max-width: 480px;
-      max-height: calc(100vh - 2 * var(--space-md));
+      max-width: min(480px, calc(100vw - 2 * var(--space-md)));
+      min-width: 0;
       max-height: calc(100dvh - 2 * var(--space-md));
       display: flex;
       flex-direction: column;
@@ -82,10 +82,12 @@ import { CommonModule } from '@angular/common';
       border: 1px solid var(--border-light);
       margin: auto;
       overflow: hidden;
+      box-sizing: border-box;
     }
     .modal-dialog--compact {
-      max-height: min(220px, 62dvh);
-      max-width: 340px;
+      max-height: min(420px, 85dvh);
+      max-width: min(340px, calc(100vw - 2 * var(--space-md)));
+      min-width: 0;
       margin: auto;
     }
     .modal-dialog--compact .modal-header {
@@ -103,7 +105,9 @@ import { CommonModule } from '@angular/common';
     }
     .modal-dialog--compact .modal-body {
       padding: 0 var(--space-md) var(--space-md);
-      overflow: visible;
+      overflow-y: auto;
+      overflow-x: hidden;
+      min-height: 0;
     }
     @media (min-width: 600px) {
       .modal-dialog {
@@ -112,7 +116,7 @@ import { CommonModule } from '@angular/common';
         max-height: calc(100dvh - 2 * var(--space-lg));
       }
       .modal-dialog--compact {
-        max-height: min(240px, 62dvh);
+        max-height: min(440px, 80dvh);
         max-width: 360px;
       }
     }

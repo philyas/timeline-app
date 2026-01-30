@@ -50,8 +50,8 @@ import { AuthService } from '../../../core/services/auth.service';
             }
             @if (success) {
               <div class="auth-success">{{ success }}</div>
-              <div class="auth-actions" style="margin-top: 1rem;">
-                <a routerLink="/timelines" class="btn" style="width: 100%; text-align: center;">Zurück zu Zeitstrahlen</a>
+              <div class="auth-actions auth-actions--single">
+                <a routerLink="/timelines" class="btn btn-full">Zurück zu Zeitstrahlen</a>
               </div>
             } @else {
               <form (ngSubmit)="onSubmit()" class="auth-form">
@@ -62,8 +62,8 @@ import { AuthService } from '../../../core/services/auth.service';
                 <label class="label">Neues Passwort bestätigen</label>
                 <input type="password" name="confirm" [(ngModel)]="confirm" required placeholder="••••••••" minlength="8" />
                 <div class="auth-actions">
-                  <a routerLink="/timelines" class="btn btn-secondary" style="flex: 1; text-align: center;">Abbrechen</a>
-                  <button type="submit" [disabled]="saving">{{ saving ? 'Wird gespeichert…' : 'Passwort ändern' }}</button>
+                  <a routerLink="/timelines" class="btn btn-secondary btn-flex">Abbrechen</a>
+                  <button type="submit" class="btn-flex" [disabled]="saving">{{ saving ? 'Wird gespeichert…' : 'Passwort ändern' }}</button>
                 </div>
               </form>
             }
@@ -77,36 +77,118 @@ import { AuthService } from '../../../core/services/auth.service';
     }
   `,
   styles: [`
-    .change-password-modal { padding: 0; }
+    /* —— Modal (User-Menü) —— responsive für alle Breiten */
+    .change-password-modal {
+      padding: 0;
+      min-width: 0;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
     .change-password-modal .error { margin: 0 0 0.5rem; font-size: 0.8125rem; color: #c41e3a; font-weight: 500; }
     .change-password-modal .success { margin: 0 0 0.5rem; font-size: 0.8125rem; color: var(--accent); font-weight: 500; }
-    .change-password-modal .cp-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
-    .change-password-modal .cp-label { flex: 0 0 56px; font-size: 0.75rem; color: var(--text-secondary); font-weight: 500; }
-    .change-password-modal input { flex: 1; padding: 0.4rem 0.5rem; font-size: 0.875rem; min-height: 36px; border-radius: 10px; }
-    .change-password-modal .cp-actions { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
-    .change-password-modal .cp-actions .btn, .change-password-modal .cp-actions button { flex: 1; padding: 0.4rem; font-size: 0.8125rem; min-height: 36px; }
-    .change-password-modal .btn-block { width: 100%; margin-top: 0.5rem; padding: 0.5rem; font-size: 0.875rem; min-height: 44px; }
+    .change-password-modal .cp-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+      min-width: 0;
+    }
+    .change-password-modal .cp-label {
+      flex: 0 0 72px;
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+    .change-password-modal input {
+      flex: 1;
+      min-width: 0;
+      padding: 0.5rem 0.75rem;
+      font-size: 1rem;
+      min-height: var(--touch-min);
+      border-radius: 10px;
+      box-sizing: border-box;
+    }
+    .change-password-modal .cp-actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+    .change-password-modal .cp-actions .btn,
+    .change-password-modal .cp-actions button {
+      flex: 1;
+      min-width: 0;
+      min-height: var(--touch-min);
+      padding: 0.5rem 1rem;
+      font-size: 0.9375rem;
+    }
+    .change-password-modal .btn-block {
+      width: 100%;
+      margin-top: 0.5rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.9375rem;
+      min-height: var(--touch-min);
+    }
+    @media (max-width: 380px) {
+      .change-password-modal .cp-row { flex-direction: column; align-items: stretch; gap: 0.25rem; }
+      .change-password-modal .cp-label { flex: none; }
+      .change-password-modal .cp-actions { flex-direction: column; }
+      .change-password-modal .cp-actions .btn,
+      .change-password-modal .cp-actions button { flex: none; width: 100%; }
+    }
 
+    /* —— Seite (eigene Route) —— responsive Mobil / Tablet / Laptop / Desktop */
     .auth-page {
       min-height: 100%;
+      min-height: 100dvh;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: var(--space-xl) var(--container-padding);
+      padding: var(--space-lg) var(--container-padding);
+      padding-left: calc(var(--container-padding) + env(safe-area-inset-left));
+      padding-right: calc(var(--container-padding) + env(safe-area-inset-right));
+      padding-bottom: calc(var(--space-lg) + env(safe-area-inset-bottom));
+      box-sizing: border-box;
     }
-    .auth-container { width: 100%; max-width: 420px; }
+    @media (min-width: 600px) {
+      .auth-page { padding: var(--space-xl) var(--container-padding); }
+    }
+    .auth-container {
+      width: 100%;
+      max-width: 420px;
+      min-width: 0;
+      box-sizing: border-box;
+    }
     .auth-card {
-      background: rgba(255, 255, 255, 0.8);
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+      background: rgba(251, 251, 253, 0.95);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border-radius: var(--radius);
       box-shadow: var(--shadow-hover);
       border: 1px solid var(--border-light);
-      padding: var(--space-xl);
+      padding: var(--space-lg);
+    }
+    @media (min-width: 600px) {
+      .auth-card { padding: var(--space-xl); }
     }
     .auth-header { margin-bottom: var(--space-lg); }
-    .auth-header h1 { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 0.5rem; }
-    .auth-subtitle { color: var(--text-secondary); font-size: 1rem; margin: 0; line-height: 1.5; }
+    .auth-header h1 {
+      font-size: clamp(1.375rem, 4vw, 1.75rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.5rem;
+      line-height: 1.2;
+    }
+    .auth-subtitle {
+      color: var(--text-secondary);
+      font-size: clamp(0.9375rem, 2vw, 1rem);
+      margin: 0;
+      line-height: 1.5;
+    }
     .auth-error {
       padding: 0.75rem 1rem;
       background: rgba(196, 30, 58, 0.08);
@@ -125,9 +207,42 @@ import { AuthService } from '../../../core/services/auth.service';
       font-weight: 500;
       margin-bottom: var(--space-md);
     }
-    .auth-form { display: flex; flex-direction: column; gap: var(--space-md); }
-    .auth-actions { display: flex; gap: var(--space-sm); margin-top: 0.5rem; flex-wrap: wrap; }
-    .auth-actions a.btn, .auth-actions button { flex: 1; min-width: 120px; }
+    .auth-form {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+    .auth-form input {
+      width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
+    }
+    .auth-actions {
+      display: flex;
+      gap: var(--space-sm);
+      margin-top: 0.5rem;
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+    .auth-actions a.btn,
+    .auth-actions button {
+      flex: 1;
+      min-width: 0;
+      min-height: var(--touch-min);
+    }
+    .auth-actions--single { margin-top: 1rem; }
+    .btn-flex { flex: 1; min-width: 120px; }
+    .btn-full { width: 100%; text-align: center; display: block; }
+    @media (max-width: 480px) {
+      .auth-actions { flex-direction: column; }
+      .auth-actions a.btn,
+      .auth-actions button { flex: none; width: 100%; }
+      .btn-flex { min-width: 0; }
+    }
+    @media (min-width: 481px) and (max-width: 900px) {
+      .auth-actions a.btn,
+      .auth-actions button { min-width: 140px; }
+    }
     .auth-footer {
       margin-top: var(--space-xl);
       padding-top: var(--space-lg);

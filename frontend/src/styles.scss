@@ -114,7 +114,8 @@ body {
   position: relative;
 }
 
-body.modal-open {
+body.modal-open,
+body.side-drawer-open {
   overflow: hidden;
 }
 

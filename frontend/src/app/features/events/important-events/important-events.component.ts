@@ -171,11 +171,11 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
       background: linear-gradient(180deg, var(--bg) 0%, #efeef5 100%);
     }
 
-    /* Header */
+    /* Header – klebt unter der globalen App-Leiste (Settings), nicht darüber */
     .important-header {
       position: sticky;
-      top: 0;
-      z-index: 100;
+      top: calc(var(--header-height) + env(safe-area-inset-top, 0px));
+      z-index: 99;
       background: rgba(255, 255, 255, 0.72);
       backdrop-filter: blur(20px) saturate(180%);
       -webkit-backdrop-filter: blur(20px) saturate(180%);
