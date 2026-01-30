@@ -161,7 +161,7 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
     </div>
 
     @if (timeline) {
-      <app-modal [isOpen]="modalOpen" title="Ereignis hinzufügen" (closed)="closeModal()">
+      <app-modal [isOpen]="modalOpen" title="Ereignis hinzufügen" [compact]="true" (closed)="closeModal()">
         <app-event-form
           [timelineId]="timeline.id"
           (created)="onEventCreatedAndClose()"
@@ -169,7 +169,7 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
         />
       </app-modal>
       @if (editModalEvent) {
-        <app-modal [isOpen]="true" title="Ereignis bearbeiten" (closed)="closeEditModal()">
+        <app-modal [isOpen]="true" title="Ereignis bearbeiten" [compact]="true" (closed)="closeEditModal()">
           <app-event-form
             [timelineId]="timeline.id"
             [event]="editModalEvent"

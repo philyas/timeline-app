@@ -23,7 +23,7 @@ function pad(n: number): string {
       <input type="number" name="year" [(ngModel)]="year" required placeholder="-13700000000 oder 2024" step="any" />
 
       <div class="date-optional">
-        <label class="label">Datum (optional) – Picker oder manuell eingeben</label>
+        <label class="label">Datum (optional)</label>
         <input
           type="date"
           name="date"
@@ -66,32 +66,46 @@ function pad(n: number): string {
     </form>
   `,
   styles: [`
+    :host { display: block; box-sizing: border-box; width: 100%; min-width: 0; }
+    form { width: 100%; min-width: 0; box-sizing: border-box; }
     label { display: block; }
     .label { font-size: 0.8125rem; font-weight: 500; color: var(--text-secondary); margin-bottom: 0.25rem; }
-    input, textarea { margin-bottom: 1rem; }
+    input, textarea {
+      margin-bottom: 0.65rem;
+      box-sizing: border-box;
+      max-width: 100%;
+    }
     .checkbox-label {
       display: flex;
       align-items: center;
       gap: 0.75rem;
-      margin-bottom: 1rem;
+      margin-bottom: 0.65rem;
       font-size: 0.9375rem;
       min-height: var(--touch-min);
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
     }
     .checkbox-label input { width: 1.25rem; height: 1.25rem; margin: 0; flex-shrink: 0; }
-    .date-optional { margin-bottom: 0.5rem; }
+    .date-optional {
+      margin-bottom: 0.35rem;
+      width: 100%;
+      min-width: 0;
+      max-width: 100%;
+      overflow: hidden;
+      box-sizing: border-box;
+    }
     .date-optional .label { margin-bottom: 0.25rem; }
     .date-input {
       width: 100%;
-      min-width: 160px;
+      max-width: 100%;
+      min-width: 0;
       box-sizing: border-box;
     }
-    .images-optional { margin-bottom: 1rem; }
+    .images-optional { margin-bottom: 0.65rem; }
     .images-optional .label { margin-bottom: 0.25rem; }
-    .file-input { display: block; margin-bottom: 0.35rem; font-size: 0.9375rem; }
+    .file-input { display: block; margin-bottom: 0.35rem; font-size: 0.9375rem; max-width: 100%; }
     .file-hint { margin: 0; font-size: 0.8125rem; color: var(--text-muted); }
-    .actions { margin-top: 1rem; }
+    .actions { margin-top: 0.75rem; }
   `],
 })
 export class EventFormComponent implements OnChanges {
